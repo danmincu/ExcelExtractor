@@ -1,0 +1,60 @@
+﻿<xp:viewColumn columnName="{0}" id="viewColumn{0}c">
+			<xp:viewColumnHeader
+				id="viewColumnHeader{0}T2">
+				<xp:this.value>
+				<![CDATA[#{javascript:try {                        
+		 		 return database.getView("temp2").getColumnNames().elementAt({1});		 		 
+		         } catch (e) {
+		 		 return e.toString();}}]]>
+				</xp:this.value>
+			</xp:viewColumnHeader>
+			<xp:this.value><![CDATA[#{javascript:""}]]></xp:this.value>
+		   <xp:text id="computedField{0}T2">
+                  <xp:this.value><![CDATA[#{javascript:try {                        		 		    
+					    var v = rowData.getColumnValue("{0}");
+			 		    var regEx = /`~(.*)`~/g;
+			 		    if (v.match("`~.*`~"))
+			 		    {
+			 		      var match = regEx.exec(v);
+			 		      return match[1];
+			 		    }
+			 		      else return v;		 		    
+		 			}
+		 			catch (e) 
+		 			{
+		 		     return e.toString();}}]]>
+		 		   </xp:this.value> 
+				   <xp:this.style>
+					<![CDATA[#{javascript:try {                        
+		 				var v = rowData.getColumnValue("{0}");		 		    
+			 				if (v.match("`~.*`~"))
+			 				  return "text-decoration: line-through;";
+			 				else
+			 				  return "";  
+		 				}
+		 				catch (e) 
+		 				{
+		 				 return "";}}]]>				
+				   </xp:this.style>
+            </xp:text>
+                
+            <xe:tooltip id="tooltip{0}T2" for="computedField{0}T2" dynamicContent="true">
+                <xe:this.rendered>                
+                <![CDATA[#{javascript:try {                        
+		 		 var doc:NotesDocument = rowData.getDocument();
+		 		 return doc.getItemValue("{0}comments").elementAt(0) != null;
+		   		}
+		   		catch (e) 
+		   		{
+		   		  return false; }}]]>                
+                </xe:this.rendered>
+		       <xe:this.label>
+			    <![CDATA[#{javascript:try {                        
+		 		  var doc:NotesDocument = rowData.getDocument();
+		 		  return doc.getItemValue("{0}comments").elementAt(0);
+        		   }
+        		   catch (e) 
+        		   { return null;}}]]>
+		       </xe:this.label>
+	        </xe:tooltip>
+</xp:viewColumn>
