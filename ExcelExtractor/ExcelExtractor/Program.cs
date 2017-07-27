@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Excel = Microsoft.Office.Interop.Excel;
 using System.IO;
 using DocumentFormat.OpenXml.Packaging;
 using DocumentFormat.OpenXml.Spreadsheet;
@@ -483,26 +482,26 @@ namespace ExcelExtractor
             System.IO.File.WriteAllText(saveFilePath, sb.ToString());
         }
 
-        static void ReadMatchCountDictionary(Excel.Worksheet worksheet)
-        {
-            var lastRow = worksheet.Cells.SpecialCells(Excel.XlCellType.xlCellTypeLastCell).Row;
+        //static void ReadMatchCountDictionary(Excel.Worksheet worksheet)
+        //{
+        //    var lastRow = worksheet.Cells.SpecialCells(Excel.XlCellType.xlCellTypeLastCell).Row;
 
 
-            //discover the right columns
-            int numMatchPositionColumn = -1;
-            int numMatchPositionRow = -1;
-            for (int index = 1; index <= lastRow; index++)
-            {
-                //System.Array MyValues = (System.Array)worksheet.get_Range((Char)(64 + 1) + index.ToString(), (Char)(64 + 23) + index.ToString()).Cells.Value;
-                System.Array MyValues = (System.Array)worksheet.get_Range("AD", "AE").Cells.Value;
-                for (int column = 1; column < 24; column++)
-                {
+        //    //discover the right columns
+        //    int numMatchPositionColumn = -1;
+        //    int numMatchPositionRow = -1;
+        //    for (int index = 1; index <= lastRow; index++)
+        //    {
+        //        //System.Array MyValues = (System.Array)worksheet.get_Range((Char)(64 + 1) + index.ToString(), (Char)(64 + 23) + index.ToString()).Cells.Value;
+        //        System.Array MyValues = (System.Array)worksheet.get_Range("AD", "AE").Cells.Value;
+        //        for (int column = 1; column < 24; column++)
+        //        {
 
-                    Console.ForegroundColor = ConsoleColor.DarkYellow;
-                    Console.WriteLine("" + MyValues.GetValue(1, column).ToString());
-                    Console.ForegroundColor = ConsoleColor.White;
-                }
-            }
-        }
+        //            Console.ForegroundColor = ConsoleColor.DarkYellow;
+        //            Console.WriteLine("" + MyValues.GetValue(1, column).ToString());
+        //            Console.ForegroundColor = ConsoleColor.White;
+        //        }
+        //    }
+        //}
     }
 }
