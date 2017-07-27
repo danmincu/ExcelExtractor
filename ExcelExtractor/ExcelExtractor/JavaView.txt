@@ -1,0 +1,1260 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<xp:view xmlns:xp="http://www.ibm.com/xsp/core"
+	xmlns:xe="http://www.ibm.com/xsp/coreex" style="padding-top:20.0px"
+	styleClass="xspPanelViewColumnHeader">
+
+	<xp:this.resources>
+		<xp:styleSheet href="/styles.css"></xp:styleSheet>
+	</xp:this.resources>
+	<xp:label value="T1 JETS schedule" id="label1"
+		style="margin-left:10.0px;margin-top:20.0px;font-weight:bold;font-size:14pt">
+	</xp:label>
+	<xp:viewPanel rows="30" id="viewPanel1" var="rowData"
+		viewStyle="margin-left:1.0%;margin-right:1.0%;margin-top:1.0%;margin-bottom:1.0%"
+		rowClasses="even, odd">
+		<xp:this.facets>
+			<xp:pager partialRefresh="true" layout="Previous Group Next"
+				xp:key="headerPager" id="pager1">
+			</xp:pager>
+		</xp:this.facets>
+		<xp:this.data>
+			<xp:dominoView var="view1" viewName="temp1"></xp:dominoView>
+		</xp:this.data>
+
+		<xp:viewColumn columnName="Date" id="viewColumn1"
+			style="width:63.0px;font-weight:bold">
+			<xp:viewColumnHeader value="Date" id="viewColumnHeader1">
+			</xp:viewColumnHeader>
+		</xp:viewColumn>
+		<xp:viewColumn columnName="A" id="viewColumnAc">
+			<xp:viewColumnHeader
+				id="viewColumnHeaderAT1">
+				<xp:this.value>
+				<![CDATA[#{javascript:try {                        
+		 		 return database.getView("temp1").getColumnNames().elementAt(1);		 		 
+		         } catch (e) {
+		 		 return e.toString();}}]]>
+				</xp:this.value>
+			</xp:viewColumnHeader>
+			<xp:this.value><![CDATA[#{javascript:""}]]></xp:this.value>
+		    <xp:text id="computedFieldAT1">
+                  <xp:this.value><![CDATA[#{javascript:try {                        		 		    
+					    var v = rowData.getColumnValue("A");
+			 		    var regEx = /`~(.*)`~/g;
+			 		    if (v.match("`~.*`~"))
+			 		    {
+			 		      var match = regEx.exec(v);
+			 		      return match[1];
+			 		    }
+			 		      else return v;		 		    
+		 			}
+		 			catch (e) 
+		 			{
+		 		     return e.toString();}}]]>
+		 		   </xp:this.value> 
+				   <xp:this.style>
+					<![CDATA[#{javascript:try {                        
+		 				var v = rowData.getColumnValue("A");		 		    
+			 				if (v.match("`~.*`~"))
+			 				  return "text-decoration: line-through;";
+			 				else
+			 				  return "";  
+		 				}
+		 				catch (e) 
+		 				{
+		 				 return "";}}]]>				
+				   </xp:this.style>
+            </xp:text>
+                
+            <xe:tooltip id="tooltipAT1" for="computedFieldAT1" dynamicContent="true">
+                <xe:this.rendered>                
+                <![CDATA[#{javascript:try {                        
+		 		 var doc:NotesDocument = rowData.getDocument();
+		 		 return doc.getItemValue("Acomments").elementAt(0) != null;
+		   		}
+		   		catch (e) 
+		   		{
+		   		  return false; }}]]>                
+                </xe:this.rendered>
+		       <xe:this.label>
+			    <![CDATA[#{javascript:try {                        
+		 		  var doc:NotesDocument = rowData.getDocument();
+		 		  return doc.getItemValue("Acomments").elementAt(0);
+        		   }
+        		   catch (e) 
+        		   { return null;}}]]>
+		       </xe:this.label>
+	        </xe:tooltip>
+</xp:viewColumn>
+<xp:viewColumn columnName="B" id="viewColumnBc">
+			<xp:viewColumnHeader
+				id="viewColumnHeaderBT1">
+				<xp:this.value>
+				<![CDATA[#{javascript:try {                        
+		 		 return database.getView("temp1").getColumnNames().elementAt(2);		 		 
+		         } catch (e) {
+		 		 return e.toString();}}]]>
+				</xp:this.value>
+			</xp:viewColumnHeader>
+			<xp:this.value><![CDATA[#{javascript:""}]]></xp:this.value>
+		    <xp:text id="computedFieldBT1">
+                  <xp:this.value><![CDATA[#{javascript:try {                        		 		    
+					    var v = rowData.getColumnValue("B");
+			 		    var regEx = /`~(.*)`~/g;
+			 		    if (v.match("`~.*`~"))
+			 		    {
+			 		      var match = regEx.exec(v);
+			 		      return match[1];
+			 		    }
+			 		      else return v;		 		    
+		 			}
+		 			catch (e) 
+		 			{
+		 		     return e.toString();}}]]>
+		 		   </xp:this.value> 
+				   <xp:this.style>
+					<![CDATA[#{javascript:try {                        
+		 				var v = rowData.getColumnValue("B");		 		    
+			 				if (v.match("`~.*`~"))
+			 				  return "text-decoration: line-through;";
+			 				else
+			 				  return "";  
+		 				}
+		 				catch (e) 
+		 				{
+		 				 return "";}}]]>				
+				   </xp:this.style>
+            </xp:text>
+                
+            <xe:tooltip id="tooltipBT1" for="computedFieldBT1" dynamicContent="true">
+                <xe:this.rendered>                
+                <![CDATA[#{javascript:try {                        
+		 		 var doc:NotesDocument = rowData.getDocument();
+		 		 return doc.getItemValue("Bcomments").elementAt(0) != null;
+		   		}
+		   		catch (e) 
+		   		{
+		   		  return false; }}]]>                
+                </xe:this.rendered>
+		       <xe:this.label>
+			    <![CDATA[#{javascript:try {                        
+		 		  var doc:NotesDocument = rowData.getDocument();
+		 		  return doc.getItemValue("Bcomments").elementAt(0);
+        		   }
+        		   catch (e) 
+        		   { return null;}}]]>
+		       </xe:this.label>
+	        </xe:tooltip>
+</xp:viewColumn>
+<xp:viewColumn columnName="C" id="viewColumnCc">
+			<xp:viewColumnHeader
+				id="viewColumnHeaderCT1">
+				<xp:this.value>
+				<![CDATA[#{javascript:try {                        
+		 		 return database.getView("temp1").getColumnNames().elementAt(3);		 		 
+		         } catch (e) {
+		 		 return e.toString();}}]]>
+				</xp:this.value>
+			</xp:viewColumnHeader>
+			<xp:this.value><![CDATA[#{javascript:""}]]></xp:this.value>
+		    <xp:text id="computedFieldCT1">
+                  <xp:this.value><![CDATA[#{javascript:try {                        		 		    
+					    var v = rowData.getColumnValue("C");
+			 		    var regEx = /`~(.*)`~/g;
+			 		    if (v.match("`~.*`~"))
+			 		    {
+			 		      var match = regEx.exec(v);
+			 		      return match[1];
+			 		    }
+			 		      else return v;		 		    
+		 			}
+		 			catch (e) 
+		 			{
+		 		     return e.toString();}}]]>
+		 		   </xp:this.value> 
+				   <xp:this.style>
+					<![CDATA[#{javascript:try {                        
+		 				var v = rowData.getColumnValue("C");		 		    
+			 				if (v.match("`~.*`~"))
+			 				  return "text-decoration: line-through;";
+			 				else
+			 				  return "";  
+		 				}
+		 				catch (e) 
+		 				{
+		 				 return "";}}]]>				
+				   </xp:this.style>
+            </xp:text>
+                
+            <xe:tooltip id="tooltipCT1" for="computedFieldCT1" dynamicContent="true">
+                <xe:this.rendered>                
+                <![CDATA[#{javascript:try {                        
+		 		 var doc:NotesDocument = rowData.getDocument();
+		 		 return doc.getItemValue("Ccomments").elementAt(0) != null;
+		   		}
+		   		catch (e) 
+		   		{
+		   		  return false; }}]]>                
+                </xe:this.rendered>
+		       <xe:this.label>
+			    <![CDATA[#{javascript:try {                        
+		 		  var doc:NotesDocument = rowData.getDocument();
+		 		  return doc.getItemValue("Ccomments").elementAt(0);
+        		   }
+        		   catch (e) 
+        		   { return null;}}]]>
+		       </xe:this.label>
+	        </xe:tooltip>
+</xp:viewColumn>
+<xp:viewColumn columnName="D" id="viewColumnDc">
+			<xp:viewColumnHeader
+				id="viewColumnHeaderDT1">
+				<xp:this.value>
+				<![CDATA[#{javascript:try {                        
+		 		 return database.getView("temp1").getColumnNames().elementAt(4);		 		 
+		         } catch (e) {
+		 		 return e.toString();}}]]>
+				</xp:this.value>
+			</xp:viewColumnHeader>
+			<xp:this.value><![CDATA[#{javascript:""}]]></xp:this.value>
+		    <xp:text id="computedFieldDT1">
+                  <xp:this.value><![CDATA[#{javascript:try {                        		 		    
+					    var v = rowData.getColumnValue("D");
+			 		    var regEx = /`~(.*)`~/g;
+			 		    if (v.match("`~.*`~"))
+			 		    {
+			 		      var match = regEx.exec(v);
+			 		      return match[1];
+			 		    }
+			 		      else return v;		 		    
+		 			}
+		 			catch (e) 
+		 			{
+		 		     return e.toString();}}]]>
+		 		   </xp:this.value> 
+				   <xp:this.style>
+					<![CDATA[#{javascript:try {                        
+		 				var v = rowData.getColumnValue("D");		 		    
+			 				if (v.match("`~.*`~"))
+			 				  return "text-decoration: line-through;";
+			 				else
+			 				  return "";  
+		 				}
+		 				catch (e) 
+		 				{
+		 				 return "";}}]]>				
+				   </xp:this.style>
+            </xp:text>
+                
+            <xe:tooltip id="tooltipDT1" for="computedFieldDT1" dynamicContent="true">
+                <xe:this.rendered>                
+                <![CDATA[#{javascript:try {                        
+		 		 var doc:NotesDocument = rowData.getDocument();
+		 		 return doc.getItemValue("Dcomments").elementAt(0) != null;
+		   		}
+		   		catch (e) 
+		   		{
+		   		  return false; }}]]>                
+                </xe:this.rendered>
+		       <xe:this.label>
+			    <![CDATA[#{javascript:try {                        
+		 		  var doc:NotesDocument = rowData.getDocument();
+		 		  return doc.getItemValue("Dcomments").elementAt(0);
+        		   }
+        		   catch (e) 
+        		   { return null;}}]]>
+		       </xe:this.label>
+	        </xe:tooltip>
+</xp:viewColumn>
+<xp:viewColumn columnName="E" id="viewColumnEc">
+			<xp:viewColumnHeader
+				id="viewColumnHeaderET1">
+				<xp:this.value>
+				<![CDATA[#{javascript:try {                        
+		 		 return database.getView("temp1").getColumnNames().elementAt(5);		 		 
+		         } catch (e) {
+		 		 return e.toString();}}]]>
+				</xp:this.value>
+			</xp:viewColumnHeader>
+			<xp:this.value><![CDATA[#{javascript:""}]]></xp:this.value>
+		    <xp:text id="computedFieldET1">
+                  <xp:this.value><![CDATA[#{javascript:try {                        		 		    
+					    var v = rowData.getColumnValue("E");
+			 		    var regEx = /`~(.*)`~/g;
+			 		    if (v.match("`~.*`~"))
+			 		    {
+			 		      var match = regEx.exec(v);
+			 		      return match[1];
+			 		    }
+			 		      else return v;		 		    
+		 			}
+		 			catch (e) 
+		 			{
+		 		     return e.toString();}}]]>
+		 		   </xp:this.value> 
+				   <xp:this.style>
+					<![CDATA[#{javascript:try {                        
+		 				var v = rowData.getColumnValue("E");		 		    
+			 				if (v.match("`~.*`~"))
+			 				  return "text-decoration: line-through;";
+			 				else
+			 				  return "";  
+		 				}
+		 				catch (e) 
+		 				{
+		 				 return "";}}]]>				
+				   </xp:this.style>
+            </xp:text>
+                
+            <xe:tooltip id="tooltipET1" for="computedFieldET1" dynamicContent="true">
+                <xe:this.rendered>                
+                <![CDATA[#{javascript:try {                        
+		 		 var doc:NotesDocument = rowData.getDocument();
+		 		 return doc.getItemValue("Ecomments").elementAt(0) != null;
+		   		}
+		   		catch (e) 
+		   		{
+		   		  return false; }}]]>                
+                </xe:this.rendered>
+		       <xe:this.label>
+			    <![CDATA[#{javascript:try {                        
+		 		  var doc:NotesDocument = rowData.getDocument();
+		 		  return doc.getItemValue("Ecomments").elementAt(0);
+        		   }
+        		   catch (e) 
+        		   { return null;}}]]>
+		       </xe:this.label>
+	        </xe:tooltip>
+</xp:viewColumn>
+<xp:viewColumn columnName="F" id="viewColumnFc">
+			<xp:viewColumnHeader
+				id="viewColumnHeaderFT1">
+				<xp:this.value>
+				<![CDATA[#{javascript:try {                        
+		 		 return database.getView("temp1").getColumnNames().elementAt(6);		 		 
+		         } catch (e) {
+		 		 return e.toString();}}]]>
+				</xp:this.value>
+			</xp:viewColumnHeader>
+			<xp:this.value><![CDATA[#{javascript:""}]]></xp:this.value>
+		    <xp:text id="computedFieldFT1">
+                  <xp:this.value><![CDATA[#{javascript:try {                        		 		    
+					    var v = rowData.getColumnValue("F");
+			 		    var regEx = /`~(.*)`~/g;
+			 		    if (v.match("`~.*`~"))
+			 		    {
+			 		      var match = regEx.exec(v);
+			 		      return match[1];
+			 		    }
+			 		      else return v;		 		    
+		 			}
+		 			catch (e) 
+		 			{
+		 		     return e.toString();}}]]>
+		 		   </xp:this.value> 
+				   <xp:this.style>
+					<![CDATA[#{javascript:try {                        
+		 				var v = rowData.getColumnValue("F");		 		    
+			 				if (v.match("`~.*`~"))
+			 				  return "text-decoration: line-through;";
+			 				else
+			 				  return "";  
+		 				}
+		 				catch (e) 
+		 				{
+		 				 return "";}}]]>				
+				   </xp:this.style>
+            </xp:text>
+                
+            <xe:tooltip id="tooltipFT1" for="computedFieldFT1" dynamicContent="true">
+                <xe:this.rendered>                
+                <![CDATA[#{javascript:try {                        
+		 		 var doc:NotesDocument = rowData.getDocument();
+		 		 return doc.getItemValue("Fcomments").elementAt(0) != null;
+		   		}
+		   		catch (e) 
+		   		{
+		   		  return false; }}]]>                
+                </xe:this.rendered>
+		       <xe:this.label>
+			    <![CDATA[#{javascript:try {                        
+		 		  var doc:NotesDocument = rowData.getDocument();
+		 		  return doc.getItemValue("Fcomments").elementAt(0);
+        		   }
+        		   catch (e) 
+        		   { return null;}}]]>
+		       </xe:this.label>
+	        </xe:tooltip>
+</xp:viewColumn>
+<xp:viewColumn columnName="G" id="viewColumnGc">
+			<xp:viewColumnHeader
+				id="viewColumnHeaderGT1">
+				<xp:this.value>
+				<![CDATA[#{javascript:try {                        
+		 		 return database.getView("temp1").getColumnNames().elementAt(7);		 		 
+		         } catch (e) {
+		 		 return e.toString();}}]]>
+				</xp:this.value>
+			</xp:viewColumnHeader>
+			<xp:this.value><![CDATA[#{javascript:""}]]></xp:this.value>
+		    <xp:text id="computedFieldGT1">
+                  <xp:this.value><![CDATA[#{javascript:try {                        		 		    
+					    var v = rowData.getColumnValue("G");
+			 		    var regEx = /`~(.*)`~/g;
+			 		    if (v.match("`~.*`~"))
+			 		    {
+			 		      var match = regEx.exec(v);
+			 		      return match[1];
+			 		    }
+			 		      else return v;		 		    
+		 			}
+		 			catch (e) 
+		 			{
+		 		     return e.toString();}}]]>
+		 		   </xp:this.value> 
+				   <xp:this.style>
+					<![CDATA[#{javascript:try {                        
+		 				var v = rowData.getColumnValue("G");		 		    
+			 				if (v.match("`~.*`~"))
+			 				  return "text-decoration: line-through;";
+			 				else
+			 				  return "";  
+		 				}
+		 				catch (e) 
+		 				{
+		 				 return "";}}]]>				
+				   </xp:this.style>
+            </xp:text>
+                
+            <xe:tooltip id="tooltipGT1" for="computedFieldGT1" dynamicContent="true">
+                <xe:this.rendered>                
+                <![CDATA[#{javascript:try {                        
+		 		 var doc:NotesDocument = rowData.getDocument();
+		 		 return doc.getItemValue("Gcomments").elementAt(0) != null;
+		   		}
+		   		catch (e) 
+		   		{
+		   		  return false; }}]]>                
+                </xe:this.rendered>
+		       <xe:this.label>
+			    <![CDATA[#{javascript:try {                        
+		 		  var doc:NotesDocument = rowData.getDocument();
+		 		  return doc.getItemValue("Gcomments").elementAt(0);
+        		   }
+        		   catch (e) 
+        		   { return null;}}]]>
+		       </xe:this.label>
+	        </xe:tooltip>
+</xp:viewColumn>
+<xp:viewColumn columnName="H" id="viewColumnHc">
+			<xp:viewColumnHeader
+				id="viewColumnHeaderHT1">
+				<xp:this.value>
+				<![CDATA[#{javascript:try {                        
+		 		 return database.getView("temp1").getColumnNames().elementAt(8);		 		 
+		         } catch (e) {
+		 		 return e.toString();}}]]>
+				</xp:this.value>
+			</xp:viewColumnHeader>
+			<xp:this.value><![CDATA[#{javascript:""}]]></xp:this.value>
+		    <xp:text id="computedFieldHT1">
+                  <xp:this.value><![CDATA[#{javascript:try {                        		 		    
+					    var v = rowData.getColumnValue("H");
+			 		    var regEx = /`~(.*)`~/g;
+			 		    if (v.match("`~.*`~"))
+			 		    {
+			 		      var match = regEx.exec(v);
+			 		      return match[1];
+			 		    }
+			 		      else return v;		 		    
+		 			}
+		 			catch (e) 
+		 			{
+		 		     return e.toString();}}]]>
+		 		   </xp:this.value> 
+				   <xp:this.style>
+					<![CDATA[#{javascript:try {                        
+		 				var v = rowData.getColumnValue("H");		 		    
+			 				if (v.match("`~.*`~"))
+			 				  return "text-decoration: line-through;";
+			 				else
+			 				  return "";  
+		 				}
+		 				catch (e) 
+		 				{
+		 				 return "";}}]]>				
+				   </xp:this.style>
+            </xp:text>
+                
+            <xe:tooltip id="tooltipHT1" for="computedFieldHT1" dynamicContent="true">
+                <xe:this.rendered>                
+                <![CDATA[#{javascript:try {                        
+		 		 var doc:NotesDocument = rowData.getDocument();
+		 		 return doc.getItemValue("Hcomments").elementAt(0) != null;
+		   		}
+		   		catch (e) 
+		   		{
+		   		  return false; }}]]>                
+                </xe:this.rendered>
+		       <xe:this.label>
+			    <![CDATA[#{javascript:try {                        
+		 		  var doc:NotesDocument = rowData.getDocument();
+		 		  return doc.getItemValue("Hcomments").elementAt(0);
+        		   }
+        		   catch (e) 
+        		   { return null;}}]]>
+		       </xe:this.label>
+	        </xe:tooltip>
+</xp:viewColumn>
+<xp:viewColumn columnName="I" id="viewColumnIc">
+			<xp:viewColumnHeader
+				id="viewColumnHeaderIT1">
+				<xp:this.value>
+				<![CDATA[#{javascript:try {                        
+		 		 return database.getView("temp1").getColumnNames().elementAt(9);		 		 
+		         } catch (e) {
+		 		 return e.toString();}}]]>
+				</xp:this.value>
+			</xp:viewColumnHeader>
+			<xp:this.value><![CDATA[#{javascript:""}]]></xp:this.value>
+		    <xp:text id="computedFieldIT1">
+                  <xp:this.value><![CDATA[#{javascript:try {                        		 		    
+					    var v = rowData.getColumnValue("I");
+			 		    var regEx = /`~(.*)`~/g;
+			 		    if (v.match("`~.*`~"))
+			 		    {
+			 		      var match = regEx.exec(v);
+			 		      return match[1];
+			 		    }
+			 		      else return v;		 		    
+		 			}
+		 			catch (e) 
+		 			{
+		 		     return e.toString();}}]]>
+		 		   </xp:this.value> 
+				   <xp:this.style>
+					<![CDATA[#{javascript:try {                        
+		 				var v = rowData.getColumnValue("I");		 		    
+			 				if (v.match("`~.*`~"))
+			 				  return "text-decoration: line-through;";
+			 				else
+			 				  return "";  
+		 				}
+		 				catch (e) 
+		 				{
+		 				 return "";}}]]>				
+				   </xp:this.style>
+            </xp:text>
+                
+            <xe:tooltip id="tooltipIT1" for="computedFieldIT1" dynamicContent="true">
+                <xe:this.rendered>                
+                <![CDATA[#{javascript:try {                        
+		 		 var doc:NotesDocument = rowData.getDocument();
+		 		 return doc.getItemValue("Icomments").elementAt(0) != null;
+		   		}
+		   		catch (e) 
+		   		{
+		   		  return false; }}]]>                
+                </xe:this.rendered>
+		       <xe:this.label>
+			    <![CDATA[#{javascript:try {                        
+		 		  var doc:NotesDocument = rowData.getDocument();
+		 		  return doc.getItemValue("Icomments").elementAt(0);
+        		   }
+        		   catch (e) 
+        		   { return null;}}]]>
+		       </xe:this.label>
+	        </xe:tooltip>
+</xp:viewColumn>
+<xp:viewColumn columnName="J" id="viewColumnJc">
+			<xp:viewColumnHeader
+				id="viewColumnHeaderJT1">
+				<xp:this.value>
+				<![CDATA[#{javascript:try {                        
+		 		 return database.getView("temp1").getColumnNames().elementAt(10);		 		 
+		         } catch (e) {
+		 		 return e.toString();}}]]>
+				</xp:this.value>
+			</xp:viewColumnHeader>
+			<xp:this.value><![CDATA[#{javascript:""}]]></xp:this.value>
+		    <xp:text id="computedFieldJT1">
+                  <xp:this.value><![CDATA[#{javascript:try {                        		 		    
+					    var v = rowData.getColumnValue("J");
+			 		    var regEx = /`~(.*)`~/g;
+			 		    if (v.match("`~.*`~"))
+			 		    {
+			 		      var match = regEx.exec(v);
+			 		      return match[1];
+			 		    }
+			 		      else return v;		 		    
+		 			}
+		 			catch (e) 
+		 			{
+		 		     return e.toString();}}]]>
+		 		   </xp:this.value> 
+				   <xp:this.style>
+					<![CDATA[#{javascript:try {                        
+		 				var v = rowData.getColumnValue("J");		 		    
+			 				if (v.match("`~.*`~"))
+			 				  return "text-decoration: line-through;";
+			 				else
+			 				  return "";  
+		 				}
+		 				catch (e) 
+		 				{
+		 				 return "";}}]]>				
+				   </xp:this.style>
+            </xp:text>
+                
+            <xe:tooltip id="tooltipJT1" for="computedFieldJT1" dynamicContent="true">
+                <xe:this.rendered>                
+                <![CDATA[#{javascript:try {                        
+		 		 var doc:NotesDocument = rowData.getDocument();
+		 		 return doc.getItemValue("Jcomments").elementAt(0) != null;
+		   		}
+		   		catch (e) 
+		   		{
+		   		  return false; }}]]>                
+                </xe:this.rendered>
+		       <xe:this.label>
+			    <![CDATA[#{javascript:try {                        
+		 		  var doc:NotesDocument = rowData.getDocument();
+		 		  return doc.getItemValue("Jcomments").elementAt(0);
+        		   }
+        		   catch (e) 
+        		   { return null;}}]]>
+		       </xe:this.label>
+	        </xe:tooltip>
+</xp:viewColumn>
+<xp:viewColumn columnName="K" id="viewColumnKc">
+			<xp:viewColumnHeader
+				id="viewColumnHeaderKT1">
+				<xp:this.value>
+				<![CDATA[#{javascript:try {                        
+		 		 return database.getView("temp1").getColumnNames().elementAt(11);		 		 
+		         } catch (e) {
+		 		 return e.toString();}}]]>
+				</xp:this.value>
+			</xp:viewColumnHeader>
+			<xp:this.value><![CDATA[#{javascript:""}]]></xp:this.value>
+		    <xp:text id="computedFieldKT1">
+                  <xp:this.value><![CDATA[#{javascript:try {                        		 		    
+					    var v = rowData.getColumnValue("K");
+			 		    var regEx = /`~(.*)`~/g;
+			 		    if (v.match("`~.*`~"))
+			 		    {
+			 		      var match = regEx.exec(v);
+			 		      return match[1];
+			 		    }
+			 		      else return v;		 		    
+		 			}
+		 			catch (e) 
+		 			{
+		 		     return e.toString();}}]]>
+		 		   </xp:this.value> 
+				   <xp:this.style>
+					<![CDATA[#{javascript:try {                        
+		 				var v = rowData.getColumnValue("K");		 		    
+			 				if (v.match("`~.*`~"))
+			 				  return "text-decoration: line-through;";
+			 				else
+			 				  return "";  
+		 				}
+		 				catch (e) 
+		 				{
+		 				 return "";}}]]>				
+				   </xp:this.style>
+            </xp:text>
+                
+            <xe:tooltip id="tooltipKT1" for="computedFieldKT1" dynamicContent="true">
+                <xe:this.rendered>                
+                <![CDATA[#{javascript:try {                        
+		 		 var doc:NotesDocument = rowData.getDocument();
+		 		 return doc.getItemValue("Kcomments").elementAt(0) != null;
+		   		}
+		   		catch (e) 
+		   		{
+		   		  return false; }}]]>                
+                </xe:this.rendered>
+		       <xe:this.label>
+			    <![CDATA[#{javascript:try {                        
+		 		  var doc:NotesDocument = rowData.getDocument();
+		 		  return doc.getItemValue("Kcomments").elementAt(0);
+        		   }
+        		   catch (e) 
+        		   { return null;}}]]>
+		       </xe:this.label>
+	        </xe:tooltip>
+</xp:viewColumn>
+<xp:viewColumn columnName="L" id="viewColumnLc">
+			<xp:viewColumnHeader
+				id="viewColumnHeaderLT1">
+				<xp:this.value>
+				<![CDATA[#{javascript:try {                        
+		 		 return database.getView("temp1").getColumnNames().elementAt(12);		 		 
+		         } catch (e) {
+		 		 return e.toString();}}]]>
+				</xp:this.value>
+			</xp:viewColumnHeader>
+			<xp:this.value><![CDATA[#{javascript:""}]]></xp:this.value>
+		    <xp:text id="computedFieldLT1">
+                  <xp:this.value><![CDATA[#{javascript:try {                        		 		    
+					    var v = rowData.getColumnValue("L");
+			 		    var regEx = /`~(.*)`~/g;
+			 		    if (v.match("`~.*`~"))
+			 		    {
+			 		      var match = regEx.exec(v);
+			 		      return match[1];
+			 		    }
+			 		      else return v;		 		    
+		 			}
+		 			catch (e) 
+		 			{
+		 		     return e.toString();}}]]>
+		 		   </xp:this.value> 
+				   <xp:this.style>
+					<![CDATA[#{javascript:try {                        
+		 				var v = rowData.getColumnValue("L");		 		    
+			 				if (v.match("`~.*`~"))
+			 				  return "text-decoration: line-through;";
+			 				else
+			 				  return "";  
+		 				}
+		 				catch (e) 
+		 				{
+		 				 return "";}}]]>				
+				   </xp:this.style>
+            </xp:text>
+                
+            <xe:tooltip id="tooltipLT1" for="computedFieldLT1" dynamicContent="true">
+                <xe:this.rendered>                
+                <![CDATA[#{javascript:try {                        
+		 		 var doc:NotesDocument = rowData.getDocument();
+		 		 return doc.getItemValue("Lcomments").elementAt(0) != null;
+		   		}
+		   		catch (e) 
+		   		{
+		   		  return false; }}]]>                
+                </xe:this.rendered>
+		       <xe:this.label>
+			    <![CDATA[#{javascript:try {                        
+		 		  var doc:NotesDocument = rowData.getDocument();
+		 		  return doc.getItemValue("Lcomments").elementAt(0);
+        		   }
+        		   catch (e) 
+        		   { return null;}}]]>
+		       </xe:this.label>
+	        </xe:tooltip>
+</xp:viewColumn>
+<xp:viewColumn columnName="M" id="viewColumnMc">
+			<xp:viewColumnHeader
+				id="viewColumnHeaderMT1">
+				<xp:this.value>
+				<![CDATA[#{javascript:try {                        
+		 		 return database.getView("temp1").getColumnNames().elementAt(13);		 		 
+		         } catch (e) {
+		 		 return e.toString();}}]]>
+				</xp:this.value>
+			</xp:viewColumnHeader>
+			<xp:this.value><![CDATA[#{javascript:""}]]></xp:this.value>
+		    <xp:text id="computedFieldMT1">
+                  <xp:this.value><![CDATA[#{javascript:try {                        		 		    
+					    var v = rowData.getColumnValue("M");
+			 		    var regEx = /`~(.*)`~/g;
+			 		    if (v.match("`~.*`~"))
+			 		    {
+			 		      var match = regEx.exec(v);
+			 		      return match[1];
+			 		    }
+			 		      else return v;		 		    
+		 			}
+		 			catch (e) 
+		 			{
+		 		     return e.toString();}}]]>
+		 		   </xp:this.value> 
+				   <xp:this.style>
+					<![CDATA[#{javascript:try {                        
+		 				var v = rowData.getColumnValue("M");		 		    
+			 				if (v.match("`~.*`~"))
+			 				  return "text-decoration: line-through;";
+			 				else
+			 				  return "";  
+		 				}
+		 				catch (e) 
+		 				{
+		 				 return "";}}]]>				
+				   </xp:this.style>
+            </xp:text>
+                
+            <xe:tooltip id="tooltipMT1" for="computedFieldMT1" dynamicContent="true">
+                <xe:this.rendered>                
+                <![CDATA[#{javascript:try {                        
+		 		 var doc:NotesDocument = rowData.getDocument();
+		 		 return doc.getItemValue("Mcomments").elementAt(0) != null;
+		   		}
+		   		catch (e) 
+		   		{
+		   		  return false; }}]]>                
+                </xe:this.rendered>
+		       <xe:this.label>
+			    <![CDATA[#{javascript:try {                        
+		 		  var doc:NotesDocument = rowData.getDocument();
+		 		  return doc.getItemValue("Mcomments").elementAt(0);
+        		   }
+        		   catch (e) 
+        		   { return null;}}]]>
+		       </xe:this.label>
+	        </xe:tooltip>
+</xp:viewColumn>
+<xp:viewColumn columnName="N" id="viewColumnNc">
+			<xp:viewColumnHeader
+				id="viewColumnHeaderNT1">
+				<xp:this.value>
+				<![CDATA[#{javascript:try {                        
+		 		 return database.getView("temp1").getColumnNames().elementAt(14);		 		 
+		         } catch (e) {
+		 		 return e.toString();}}]]>
+				</xp:this.value>
+			</xp:viewColumnHeader>
+			<xp:this.value><![CDATA[#{javascript:""}]]></xp:this.value>
+		    <xp:text id="computedFieldNT1">
+                  <xp:this.value><![CDATA[#{javascript:try {                        		 		    
+					    var v = rowData.getColumnValue("N");
+			 		    var regEx = /`~(.*)`~/g;
+			 		    if (v.match("`~.*`~"))
+			 		    {
+			 		      var match = regEx.exec(v);
+			 		      return match[1];
+			 		    }
+			 		      else return v;		 		    
+		 			}
+		 			catch (e) 
+		 			{
+		 		     return e.toString();}}]]>
+		 		   </xp:this.value> 
+				   <xp:this.style>
+					<![CDATA[#{javascript:try {                        
+		 				var v = rowData.getColumnValue("N");		 		    
+			 				if (v.match("`~.*`~"))
+			 				  return "text-decoration: line-through;";
+			 				else
+			 				  return "";  
+		 				}
+		 				catch (e) 
+		 				{
+		 				 return "";}}]]>				
+				   </xp:this.style>
+            </xp:text>
+                
+            <xe:tooltip id="tooltipNT1" for="computedFieldNT1" dynamicContent="true">
+                <xe:this.rendered>                
+                <![CDATA[#{javascript:try {                        
+		 		 var doc:NotesDocument = rowData.getDocument();
+		 		 return doc.getItemValue("Ncomments").elementAt(0) != null;
+		   		}
+		   		catch (e) 
+		   		{
+		   		  return false; }}]]>                
+                </xe:this.rendered>
+		       <xe:this.label>
+			    <![CDATA[#{javascript:try {                        
+		 		  var doc:NotesDocument = rowData.getDocument();
+		 		  return doc.getItemValue("Ncomments").elementAt(0);
+        		   }
+        		   catch (e) 
+        		   { return null;}}]]>
+		       </xe:this.label>
+	        </xe:tooltip>
+</xp:viewColumn>
+<xp:viewColumn columnName="O" id="viewColumnOc">
+			<xp:viewColumnHeader
+				id="viewColumnHeaderOT1">
+				<xp:this.value>
+				<![CDATA[#{javascript:try {                        
+		 		 return database.getView("temp1").getColumnNames().elementAt(15);		 		 
+		         } catch (e) {
+		 		 return e.toString();}}]]>
+				</xp:this.value>
+			</xp:viewColumnHeader>
+			<xp:this.value><![CDATA[#{javascript:""}]]></xp:this.value>
+		    <xp:text id="computedFieldOT1">
+                  <xp:this.value><![CDATA[#{javascript:try {                        		 		    
+					    var v = rowData.getColumnValue("O");
+			 		    var regEx = /`~(.*)`~/g;
+			 		    if (v.match("`~.*`~"))
+			 		    {
+			 		      var match = regEx.exec(v);
+			 		      return match[1];
+			 		    }
+			 		      else return v;		 		    
+		 			}
+		 			catch (e) 
+		 			{
+		 		     return e.toString();}}]]>
+		 		   </xp:this.value> 
+				   <xp:this.style>
+					<![CDATA[#{javascript:try {                        
+		 				var v = rowData.getColumnValue("O");		 		    
+			 				if (v.match("`~.*`~"))
+			 				  return "text-decoration: line-through;";
+			 				else
+			 				  return "";  
+		 				}
+		 				catch (e) 
+		 				{
+		 				 return "";}}]]>				
+				   </xp:this.style>
+            </xp:text>
+                
+            <xe:tooltip id="tooltipOT1" for="computedFieldOT1" dynamicContent="true">
+                <xe:this.rendered>                
+                <![CDATA[#{javascript:try {                        
+		 		 var doc:NotesDocument = rowData.getDocument();
+		 		 return doc.getItemValue("Ocomments").elementAt(0) != null;
+		   		}
+		   		catch (e) 
+		   		{
+		   		  return false; }}]]>                
+                </xe:this.rendered>
+		       <xe:this.label>
+			    <![CDATA[#{javascript:try {                        
+		 		  var doc:NotesDocument = rowData.getDocument();
+		 		  return doc.getItemValue("Ocomments").elementAt(0);
+        		   }
+        		   catch (e) 
+        		   { return null;}}]]>
+		       </xe:this.label>
+	        </xe:tooltip>
+</xp:viewColumn>
+<xp:viewColumn columnName="P" id="viewColumnPc">
+			<xp:viewColumnHeader
+				id="viewColumnHeaderPT1">
+				<xp:this.value>
+				<![CDATA[#{javascript:try {                        
+		 		 return database.getView("temp1").getColumnNames().elementAt(16);		 		 
+		         } catch (e) {
+		 		 return e.toString();}}]]>
+				</xp:this.value>
+			</xp:viewColumnHeader>
+			<xp:this.value><![CDATA[#{javascript:""}]]></xp:this.value>
+		    <xp:text id="computedFieldPT1">
+                  <xp:this.value><![CDATA[#{javascript:try {                        		 		    
+					    var v = rowData.getColumnValue("P");
+			 		    var regEx = /`~(.*)`~/g;
+			 		    if (v.match("`~.*`~"))
+			 		    {
+			 		      var match = regEx.exec(v);
+			 		      return match[1];
+			 		    }
+			 		      else return v;		 		    
+		 			}
+		 			catch (e) 
+		 			{
+		 		     return e.toString();}}]]>
+		 		   </xp:this.value> 
+				   <xp:this.style>
+					<![CDATA[#{javascript:try {                        
+		 				var v = rowData.getColumnValue("P");		 		    
+			 				if (v.match("`~.*`~"))
+			 				  return "text-decoration: line-through;";
+			 				else
+			 				  return "";  
+		 				}
+		 				catch (e) 
+		 				{
+		 				 return "";}}]]>				
+				   </xp:this.style>
+            </xp:text>
+                
+            <xe:tooltip id="tooltipPT1" for="computedFieldPT1" dynamicContent="true">
+                <xe:this.rendered>                
+                <![CDATA[#{javascript:try {                        
+		 		 var doc:NotesDocument = rowData.getDocument();
+		 		 return doc.getItemValue("Pcomments").elementAt(0) != null;
+		   		}
+		   		catch (e) 
+		   		{
+		   		  return false; }}]]>                
+                </xe:this.rendered>
+		       <xe:this.label>
+			    <![CDATA[#{javascript:try {                        
+		 		  var doc:NotesDocument = rowData.getDocument();
+		 		  return doc.getItemValue("Pcomments").elementAt(0);
+        		   }
+        		   catch (e) 
+        		   { return null;}}]]>
+		       </xe:this.label>
+	        </xe:tooltip>
+		</xp:viewColumn>
+
+
+
+	</xp:viewPanel>
+
+	<xp:label value="T2 JETS schedule" id="label2"
+		style="margin-left:10.0px;margin-top:10.0px;font-weight:bold;font-size:14pt">
+	</xp:label>
+
+	<xp:viewPanel rows="30" id="viewPanel2" var="rowData"
+		viewStyle="margin-left:1.0%;margin-right:1.0%;margin-top:1.0%;margin-bottom:1.0%"
+		rowClasses="even,odd">
+		<xp:this.facets>
+			<xp:pager partialRefresh="true" layout="Previous Group Next"
+				xp:key="headerPager" id="pager2">
+			</xp:pager>
+		</xp:this.facets>
+		<xp:this.data>
+			<xp:dominoView var="view1" viewName="temp2"></xp:dominoView>
+		</xp:this.data>
+
+		<xp:viewColumn columnName="Date" id="viewColumnDate2"
+			style="width:63.0px;font-weight:bold">
+			<xp:viewColumnHeader value="Date" id="viewColumnHeader2">
+			</xp:viewColumnHeader>
+		</xp:viewColumn>
+	<xp:viewColumn columnName="A" id="viewColumn2">
+			<xp:viewColumnHeader
+				id="viewColumnHeaderAT2">
+				<xp:this.value>
+				<![CDATA[#{javascript:try {                        
+		 		 return database.getView("temp2").getColumnNames().elementAt(1);		 		 
+		         } catch (e) {
+		 		 return e.toString();}}]]>
+				</xp:this.value>
+			</xp:viewColumnHeader>
+			<xp:this.value><![CDATA[#{javascript:""}]]></xp:this.value>
+		   <xp:text id="computedFieldAT2">
+                  <xp:this.value><![CDATA[#{javascript:try {                        		 		    
+					    var v = rowData.getColumnValue("A");
+			 		    var regEx = /`~(.*)`~/g;
+			 		    if (v.match("`~.*`~"))
+			 		    {
+			 		      var match = regEx.exec(v);
+			 		      return match[1];
+			 		    }
+			 		      else return v;		 		    
+		 			}
+		 			catch (e) 
+		 			{
+		 		     return e.toString();}}]]>
+		 		   </xp:this.value> 
+				   <xp:this.style>
+					<![CDATA[#{javascript:try {                        
+		 				var v = rowData.getColumnValue("A");		 		    
+			 				if (v.match("`~.*`~"))
+			 				  return "text-decoration: line-through;";
+			 				else
+			 				  return "";  
+		 				}
+		 				catch (e) 
+		 				{
+		 				 return "";}}]]>				
+				   </xp:this.style>
+            </xp:text>
+                
+            <xe:tooltip id="tooltipAT2" for="computedFieldAT2" dynamicContent="true">
+                <xe:this.rendered>                
+                <![CDATA[#{javascript:try {                        
+		 		 var doc:NotesDocument = rowData.getDocument();
+		 		 return doc.getItemValue("Acomments").elementAt(0) != null;
+		   		}
+		   		catch (e) 
+		   		{
+		   		  return false; }}]]>                
+                </xe:this.rendered>
+		       <xe:this.label>
+			    <![CDATA[#{javascript:try {                        
+		 		  var doc:NotesDocument = rowData.getDocument();
+		 		  return doc.getItemValue("Acomments").elementAt(0);
+        		   }
+        		   catch (e) 
+        		   { return null;}}]]>
+		       </xe:this.label>
+	        </xe:tooltip>
+</xp:viewColumn>
+<xp:viewColumn columnName="B" id="viewColumn3">
+			<xp:viewColumnHeader
+				id="viewColumnHeaderBT2">
+				<xp:this.value>
+				<![CDATA[#{javascript:try {                        
+		 		 return database.getView("temp2").getColumnNames().elementAt(2);		 		 
+		         } catch (e) {
+		 		 return e.toString();}}]]>
+				</xp:this.value>
+			</xp:viewColumnHeader>
+			<xp:this.value><![CDATA[#{javascript:""}]]></xp:this.value>
+		   <xp:text id="computedFieldBT2">
+                  <xp:this.value><![CDATA[#{javascript:try {                        		 		    
+					    var v = rowData.getColumnValue("B");
+			 		    var regEx = /`~(.*)`~/g;
+			 		    if (v.match("`~.*`~"))
+			 		    {
+			 		      var match = regEx.exec(v);
+			 		      return match[1];
+			 		    }
+			 		      else return v;		 		    
+		 			}
+		 			catch (e) 
+		 			{
+		 		     return e.toString();}}]]>
+		 		   </xp:this.value> 
+				   <xp:this.style>
+					<![CDATA[#{javascript:try {                        
+		 				var v = rowData.getColumnValue("B");		 		    
+			 				if (v.match("`~.*`~"))
+			 				  return "text-decoration: line-through;";
+			 				else
+			 				  return "";  
+		 				}
+		 				catch (e) 
+		 				{
+		 				 return "";}}]]>				
+				   </xp:this.style>
+            </xp:text>
+                
+            <xe:tooltip id="tooltipBT2" for="computedFieldBT2" dynamicContent="true">
+                <xe:this.rendered>                
+                <![CDATA[#{javascript:try {                        
+		 		 var doc:NotesDocument = rowData.getDocument();
+		 		 return doc.getItemValue("Bcomments").elementAt(0) != null;
+		   		}
+		   		catch (e) 
+		   		{
+		   		  return false; }}]]>                
+                </xe:this.rendered>
+		       <xe:this.label>
+			    <![CDATA[#{javascript:try {                        
+		 		  var doc:NotesDocument = rowData.getDocument();
+		 		  return doc.getItemValue("Bcomments").elementAt(0);
+        		   }
+        		   catch (e) 
+        		   { return null;}}]]>
+		       </xe:this.label>
+	        </xe:tooltip>
+</xp:viewColumn>
+<xp:viewColumn columnName="C" id="viewColumn4">
+			<xp:viewColumnHeader
+				id="viewColumnHeaderCT2">
+				<xp:this.value>
+				<![CDATA[#{javascript:try {                        
+		 		 return database.getView("temp2").getColumnNames().elementAt(3);		 		 
+		         } catch (e) {
+		 		 return e.toString();}}]]>
+				</xp:this.value>
+			</xp:viewColumnHeader>
+			<xp:this.value><![CDATA[#{javascript:""}]]></xp:this.value>
+		   <xp:text id="computedFieldCT2">
+                  <xp:this.value><![CDATA[#{javascript:try {                        		 		    
+					    var v = rowData.getColumnValue("C");
+			 		    var regEx = /`~(.*)`~/g;
+			 		    if (v.match("`~.*`~"))
+			 		    {
+			 		      var match = regEx.exec(v);
+			 		      return match[1];
+			 		    }
+			 		      else return v;		 		    
+		 			}
+		 			catch (e) 
+		 			{
+		 		     return e.toString();}}]]>
+		 		   </xp:this.value> 
+				   <xp:this.style>
+					<![CDATA[#{javascript:try {                        
+		 				var v = rowData.getColumnValue("C");		 		    
+			 				if (v.match("`~.*`~"))
+			 				  return "text-decoration: line-through;";
+			 				else
+			 				  return "";  
+		 				}
+		 				catch (e) 
+		 				{
+		 				 return "";}}]]>				
+				   </xp:this.style>
+            </xp:text>
+                
+            <xe:tooltip id="tooltipCT2" for="computedFieldCT2" dynamicContent="true">
+                <xe:this.rendered>                
+                <![CDATA[#{javascript:try {                        
+		 		 var doc:NotesDocument = rowData.getDocument();
+		 		 return doc.getItemValue("Ccomments").elementAt(0) != null;
+		   		}
+		   		catch (e) 
+		   		{
+		   		  return false; }}]]>                
+                </xe:this.rendered>
+		       <xe:this.label>
+			    <![CDATA[#{javascript:try {                        
+		 		  var doc:NotesDocument = rowData.getDocument();
+		 		  return doc.getItemValue("Ccomments").elementAt(0);
+        		   }
+        		   catch (e) 
+        		   { return null;}}]]>
+		       </xe:this.label>
+	        </xe:tooltip>
+</xp:viewColumn>
+<xp:viewColumn columnName="D" id="viewColumn5">
+			<xp:viewColumnHeader
+				id="viewColumnHeaderDT2">
+				<xp:this.value>
+				<![CDATA[#{javascript:try {                        
+		 		 return database.getView("temp2").getColumnNames().elementAt(4);		 		 
+		         } catch (e) {
+		 		 return e.toString();}}]]>
+				</xp:this.value>
+			</xp:viewColumnHeader>
+			<xp:this.value><![CDATA[#{javascript:""}]]></xp:this.value>
+		   <xp:text id="computedFieldDT2">
+                  <xp:this.value><![CDATA[#{javascript:try {                        		 		    
+					    var v = rowData.getColumnValue("D");
+			 		    var regEx = /`~(.*)`~/g;
+			 		    if (v.match("`~.*`~"))
+			 		    {
+			 		      var match = regEx.exec(v);
+			 		      return match[1];
+			 		    }
+			 		      else return v;		 		    
+		 			}
+		 			catch (e) 
+		 			{
+		 		     return e.toString();}}]]>
+		 		   </xp:this.value> 
+				   <xp:this.style>
+					<![CDATA[#{javascript:try {                        
+		 				var v = rowData.getColumnValue("D");		 		    
+			 				if (v.match("`~.*`~"))
+			 				  return "text-decoration: line-through;";
+			 				else
+			 				  return "";  
+		 				}
+		 				catch (e) 
+		 				{
+		 				 return "";}}]]>				
+				   </xp:this.style>
+            </xp:text>
+                
+            <xe:tooltip id="tooltipDT2" for="computedFieldDT2" dynamicContent="true">
+                <xe:this.rendered>                
+                <![CDATA[#{javascript:try {                        
+		 		 var doc:NotesDocument = rowData.getDocument();
+		 		 return doc.getItemValue("Dcomments").elementAt(0) != null;
+		   		}
+		   		catch (e) 
+		   		{
+		   		  return false; }}]]>                
+                </xe:this.rendered>
+		       <xe:this.label>
+			    <![CDATA[#{javascript:try {                        
+		 		  var doc:NotesDocument = rowData.getDocument();
+		 		  return doc.getItemValue("Dcomments").elementAt(0);
+        		   }
+        		   catch (e) 
+        		   { return null;}}]]>
+		       </xe:this.label>
+	        </xe:tooltip>
+       </xp:viewColumn>
+
+	</xp:viewPanel>
+
+
+	<xp:br></xp:br>
+</xp:view>

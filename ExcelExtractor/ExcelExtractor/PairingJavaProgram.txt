@@ -1,0 +1,224 @@
+﻿import lotus.domino.*;
+
+public class JavaAgent extends AgentBase {
+
+	public void NotesMain() {
+
+		try {
+		Session session = getSession();
+		AgentContext agentContext = session.getAgentContext();
+		//extract T1 => to tempSchedule1 and view temp1
+		Excel2Domino e2d = new Excel2Domino(agentContext,"1", "2,1,17,1,1,4,2016-10-17,60");
+		e2d.run();
+
+		//extract T2 => to tempSchedule2 and view temp2
+		e2d = new Excel2Domino(agentContext,"2", "2,1,5,1,1,2,2016-10-17,60");
+		e2d.run();
+		
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+}
+
+------------------------------------------------------------------------
+
+import java.io.BufferedReader;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
+import java.util.regex.Pattern;
+
+import lotus.domino.AgentContext;
+import lotus.domino.Database;
+import lotus.domino.Document;
+import lotus.domino.View;
+
+
+public class Excel2Domino {
+
+	static String extractorfileName = "C:\\Extractor\\ExcelExtractor.exe";
+	static String excelFilePath = "c:\\temp\\JETS VS PILOTS SKED 06 April 2017 New.xlsx";
+	
+	private AgentContext agentContext;
+	private String label;
+	private String viewName;
+	private String scheduleViewName;
+	private String formName;
+	private String positions;
+	
+	public Excel2Domino(AgentContext agentContext, String label, String positions)
+	{
+		this.agentContext = agentContext;
+		this.label = label;
+		this.positions = positions;
+		
+		this.viewName = "temp" + this.label;
+		this.formName = "tempSchedule" + this.label;
+		this.scheduleViewName = "ScheduleView" + this.label;
+	}
+	
+	public void run()
+	{
+		String tempDataFileName = "text" +this.label + ".txt";
+	
+		
+		try {
+			System.out.println("Start execution");
+			
+			// Runtime.getRuntime().exec("rundll32 SHELL32.DLL,ShellExec_RunDLL \""
+			// + fileName+ "\"");
+			
+			Object[] fArgs = new String[] { excelFilePath, this.label, this.positions, tempDataFileName };			
+			String[] args = {extractorfileName, String.format("\"%s\",\"T%s Jets only\",%s,\"c:\\temp\\%s\"",fArgs)};
+			System.out.println("Executing:" + args[0] + " " + args[1]);
+			Process p = Runtime.getRuntime().exec(args);
+			String output = "";
+			int i;
+			while ((i = p.getInputStream().read()) != -1) {
+				output = output + (char) i;
+			}
+			while ((i = p.getErrorStream().read()) != -1) {
+				System.out.println("Error:");
+				System.err.write(i);
+			}
+			p.waitFor();
+			int exitValue = p.exitValue();
+			
+			// if the excel extraction was successful
+			if (exitValue == 0) {
+				String dataFileName = output.replace("\n", "").replace("\r", "") + tempDataFileName;
+				System.out.println("Processing" + dataFileName);
+				DeleteTempScheduleDocuments();
+				ProcessCsvFile(dataFileName);
+				System.out.println("Done!");
+			}
+			else
+			{
+			  System.out.println("Error exit value:" + p.exitValue());
+			}
+
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		
+	}
+	
+
+	public void ProcessCsvFile(String csvFile) {
+		BufferedReader br = null;
+		String line = "";
+		String cvsSplitBy = "|";
+
+		try {
+
+			boolean firstLine = false;
+			String[] columnNames = null;
+			br = new BufferedReader(new FileReader(csvFile));
+			while ((line = br.readLine()) != null) {
+				// use comma as separator
+				String[] lineData = line.split(Pattern.quote(cvsSplitBy));
+				if (!firstLine) {
+					firstLine = true;
+					columnNames = lineData;
+					CreateView(columnNames);
+				} else {
+					CreateDocument(columnNames, lineData);
+				}
+			}
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		} finally {
+			if (br != null) {
+				try {
+					br.close();
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			}
+		}
+	}
+
+	public void CreateView(String[] columnNames) {
+		try {
+			
+			Database db = this.agentContext.getCurrentDatabase();
+			View v = db.getView(this.viewName);
+			if (v != null) {
+				v.remove();
+			}
+			v = db.createView(this.viewName);
+			v.setSelectionFormula("SELECT Form=\""+ this.formName + "\"");
+
+			for (int i = 0; i < columnNames.length; i++) {
+				String fieldName = (new StringBuilder())
+						.append((char) (i + 64)).toString();
+				if (i == 0)
+					fieldName = "Date";
+				System.out.println("Create " + " " + columnNames[i] + " "
+						+ fieldName);
+				v.createColumn(i + 2, columnNames[i], fieldName);
+			}
+			v.removeColumn(1);
+
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+
+	public void DeleteTempScheduleDocuments() {
+	  try {
+			Database db = this.agentContext.getCurrentDatabase();
+			View view = db.getView(this.scheduleViewName);
+			String formName;
+			Document doc = view.getFirstDocument();
+			Document nextDoc;
+			while (doc != null) {
+				nextDoc = view.getNextDocument(doc);
+				formName = doc.getItemValueString("Form");
+				if (formName.equals(this.formName)) {
+					doc.remove(true);
+				}
+				doc = nextDoc;
+		}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+
+	public void CreateDocument(String[] columnNames, String[] columnValues) {
+		try {
+
+			String cvsSplitComments = "[[";
+			// (Your code goes here)
+			Database db = this.agentContext.getCurrentDatabase();
+
+			Document document = db.createDocument();
+			document.replaceItemValue("Form", this.formName);
+
+			for (int i = 0; i < columnValues.length; i++) {
+				String fieldName = (new StringBuilder()).append((char) (i + 64)).toString();
+				
+				if (i == 0)
+				{
+				  fieldName = "Date";
+				}
+				
+				String[] data = columnValues[i].split(Pattern.quote(cvsSplitComments));				
+				document.replaceItemValue(fieldName, data[0]);
+				//if comments are present create a comments field to store them
+				if (data.length > 1)
+				{
+					document.replaceItemValue(fieldName+"comments", data[1]);
+				}
+			}
+			document.save();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+
+
+}
