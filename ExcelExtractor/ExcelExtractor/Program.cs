@@ -18,7 +18,15 @@ namespace ExcelExtractor
 
     class Program
     {
-        const string separator = "|";
+
+        static void Main1(string[] args)
+        {
+            OpenXMLUtilities.CopySheetToNewFile(@"c:\temp\copy.xlsx", "T1 Jets only", @"c:\temp\cloned.xlsx");
+           // works! OpenXMLUtilities.CopySheet(@"c:\temp\copy.xlsx", "T1 Jets only", "cloned");           
+        }
+
+
+            const string separator = "|";
         //private static string SheetName = "T1 Jets only";
         //private static Tuple<Position, Position> AirplaneNames = new Tuple<Position, Position>(new Position { ColumnIndex = 2, RowIndex = 1 }, new Position { ColumnIndex = 17, RowIndex = 1 });
         //private static Position CalendarStartPosition = new Position { ColumnIndex = 1, RowIndex = 4 };
