@@ -11,11 +11,7 @@ using SpreadsheetLight;
 
 namespace ExcelExtractor2
 {
-    public class Position
-    {
-        public int RowIndex { set; get; }
-        public int ColumnIndex { set; get; }
-    }
+ 
 
     class Processor
     {
@@ -24,7 +20,7 @@ namespace ExcelExtractor2
         public static int Run(string[] args)
         {
             dateTypes = ConfigurationManager.AppSettings["dateTypes"].Split(',');
-            
+
             var path = Path.GetTempPath();
             Console.WriteLine(path);
             try
@@ -34,9 +30,9 @@ namespace ExcelExtractor2
                     Console.WriteLine("*******************************************************************************");
                     Console.WriteLine("************************ EXCEL DATA EXTRACTOR *********************************");
                     Console.WriteLine("*******************************************************************************");
-                    Console.WriteLine("Usage example: ExcelExtractor.exe \"c:\\temp\\JETS VS PILOTS SKED 06 April 2017 New.xlsx\",\"T1 Jets only\",2,1,17,1,1,4,2017-03-01,30,\"c:\\temp\\text.txt\"");
+                    Console.WriteLine("Usage example: ExcelExtractor.exe \"c:\\temp\\JETS VS PILOTS SKED 06 April 2017 New.xlsx\",\"T1 Jets only\",2,1,17,1,1,4,2017-03-01,30,\"c:\\temp\\text.xlsx\"");
                     Console.WriteLine("*******************************************************************************");
-                    Console.WriteLine("Parameters: excel file, sheet name, airplane names start row, airplane names start column, stop row, stop column, calendar start row, calendar start column, min date, days to extract, output text file");
+                    Console.WriteLine("Parameters: excel file, sheet name, airplane names start row, airplane names start column, stop row, stop column, calendar start row, calendar start column, min date, days to extract, output xlsx file");
                     return 2;
                 }
 
@@ -81,7 +77,6 @@ namespace ExcelExtractor2
                 // Retrieve a reference to the workbook part.
                 WorkbookPart wbPart = document.WorkbookPart;
 
-
                 Sheet theSheet = wbPart.Workbook.Descendants<Sheet>().FirstOrDefault(s => s.Name.ToString().Equals(sheetName, StringComparison.OrdinalIgnoreCase));
 
                 if (theSheet == null)
@@ -114,41 +109,25 @@ namespace ExcelExtractor2
 
                 var titleRow = theRows.Skip(airplaneNames.Item1.RowIndex - 1).FirstOrDefault();
                 var titleNames = titleRow.Descendants<Cell>().Skip(airplaneNames.Item1.ColumnIndex - 1).Take(airplaneNames.Item2.ColumnIndex - 1)
-                    .Select(t => (regex.Replace(GetCellValue(t, wbPart).ToString().Trim().Replace("\n", " "), " ")).Replace("|", ""));
+                    .Select(t => (regex.Replace(GetCellValue(t, wbPart, out var b).ToString().Trim().Replace("\n", " "), " ")).Replace("|", ""));
                 var titleCellValues = titleRow.Descendants<Cell>().Skip(airplaneNames.Item1.ColumnIndex - 1).Take(airplaneNames.Item2.ColumnIndex - 1).
                     Select(t => Regex.Replace(t.CellReference, @"[^A-Z]+", String.Empty)).ToList();
-                
+
                 //clean the airplane names
                 titleNames = titleNames.Select(t => Regex.Replace(t, @"[^0-9a-zA-Z\s\-]+", String.Empty)).Select(t => regex.Replace(t, " "));
 
-
-                //var titles = string.Join(separator, titleNames);
-                //titles = "Date" + separator + titles;
-
-                
                 titleNames = (new string[] { "Date" }).Union(titleNames);
-                foreach (var tit in titleNames)
+                titleNames.ToList().ForEach(title =>
                 {
-                    SLStyle cellStyle = xlsxDocument.CreateStyle();
-                    cellStyle.Fill.SetPattern(PatternValues.LightTrellis, SLThemeColorIndexValues.Accent1Color, SLThemeColorIndexValues.Light2Color);
-                    cellStyle.Border.SetBottomBorder(BorderStyleValues.Double, SLThemeColorIndexValues.Accent2Color);
-                    cellStyle.Border.SetTopBorder(BorderStyleValues.Double, SLThemeColorIndexValues.Accent2Color);
-                    cellStyle.Border.SetLeftBorder(BorderStyleValues.Medium, SLThemeColorIndexValues.Accent2Color);
-                    cellStyle.Border.SetRightBorder(BorderStyleValues.Medium, SLThemeColorIndexValues.Accent2Color);
-                    cellStyle.Font.Bold = true;
-                    cellStyle.SetWrapText(true);
-
-                    xlsxDocument.SetCellValue(currentRow, currentColumn, tit);
-                    xlsxDocument.SetCellStyle(currentRow, currentColumn++, cellStyle);
-                }
-
+                    (new TitleCell() { Text = title }).SetOutputCell(currentRow, currentColumn++, xlsxDocument);
+                });
                 currentRow++;
                 currentColumn = 1;
 
                 var meaninfulRows = theRows.Skip(calendarStartPosition.RowIndex - 1)
                     .Where(r =>
                     {
-                        var dtobj = GetCellValue(r.Descendants<Cell>().ElementAt(calendarStartPosition.ColumnIndex - 1), wbPart);
+                        var dtobj = GetCellValue(r.Descendants<Cell>().ElementAt(calendarStartPosition.ColumnIndex - 1), wbPart, out var b);
                         if (!(dtobj is DateTime))
                             return false;
                         var dt = (DateTime)dtobj;
@@ -164,66 +143,43 @@ namespace ExcelExtractor2
                         .Take(airplaneNames.Item2.ColumnIndex - 1)
                         .Select(t =>
                         {
-                            var v = GetCellValue(t, wbPart).ToString().Trim().Replace("\n", " ");
+                            var ocell = new OutputCell()
+                            {
+                                Text = GetCellValue(t, wbPart, out var isStrikeout).ToString().Trim().Replace("\n", " "),
+                                IsStrikeout = isStrikeout
+                            };
                             if (lstComments.ContainsKey(t.CellReference.ToString()))
                             {
-                                v = v + $"[[{lstComments[t.CellReference].Replace("\n", " ")}";
+                                ocell.TextComment = lstComments[t.CellReference].Replace("\n", " ");
                             }
-                            return System.Tuple.Create(Regex.Replace(t.CellReference, @"[^A-Z]+", String.Empty), v);
+                            return System.Tuple.Create(Regex.Replace(t.CellReference, @"[^A-Z]+", String.Empty), ocell/*v*/);
                         }).ToDictionary(t => t.Item1, t => t.Item2);
 
-                    List<string> vals = new List<string>();
+                    List<OutputCell> vals = new List<OutputCell>();
                     foreach (var letter in titleCellValues)
                     {
                         if (values.ContainsKey(letter))
                             vals.Add(values[letter]);
                         else
-                            vals.Add("");
+                            vals.Add(new OutputCell() { Text = null });
                     }
 
                     line = string.Join(separator, vals);
-                    var DateTime = (DateTime)GetCellValue(cells.ElementAt(calendarStartPosition.ColumnIndex - 1), wbPart);
-                    line = DateTime.ToString("yyyy-MM-dd") + separator + line;
-                    var cellValues = (new string[] { DateTime.ToString("yyyy-MM-dd") }).Union(vals);
-                    
-                    foreach (var singleCellValue in cellValues)
-                    {
-                        var singleCellValues = singleCellValue.Split('[');
-                        var cv = singleCellValues[0];
-                        if (singleCellValues.Length == 3)
-                        {
-                            // linear gradients
-                            var comm = xlsxDocument.CreateComment();
-                            // 40% transparency on the first gradient point
-                            //comm.GradientFromTransparency = 90;
-                            // 80% transparency on the last gradient point
-                            //comm.GradientToTransparency = 100;
-                            // 45 degrees, so gradient is from top-left to bottom-right
-                            comm.Fill.SetLinearGradient(SpreadsheetLight.Drawing.SLGradientPresetValues.Ocean, 45);
-                            comm.SetText(singleCellValues[2]);
-                            xlsxDocument.InsertComment(currentRow, currentColumn, comm);
-                        }
-                       
-                        SLStyle cellStyle = new SLStyle();
-                        cellStyle.SetWrapText(true);
-                        if (cv.Contains("`~"))
-                            cellStyle.Font.Strike = true;
-                        xlsxDocument.SetCellValue(currentRow, currentColumn, cv.Replace("`~",""));
-                        xlsxDocument.SetCellStyle(currentRow, currentColumn, cellStyle);
-                        currentColumn++;
-                    }
+                    var DateTime = (DateTime)GetCellValue(cells.ElementAt(calendarStartPosition.ColumnIndex - 1), wbPart, out var b);
+                    var cellValues = (new OutputCell[] { new DateCell() { Text = DateTime.ToString("yyyy-MM-dd") } }).Union(vals);
+
+                    cellValues.ToList().ForEach(a => a.SetOutputCell(currentRow, currentColumn++, xlsxDocument));              
                     currentRow++;
-                    currentColumn = 1;                    
+                    currentColumn = 1;
                 }
 
                 xlsxDocument.SaveAs(saveFilePath);
             }
         }
 
-
-
-        static object GetCellValue(Cell theCell, WorkbookPart wbPart)
+        static object GetCellValue(Cell theCell, WorkbookPart wbPart, out bool isStrike)
         {
+            isStrike = false;
             var attrib = theCell.GetAttributes();
             Object value = theCell.InnerText;
 
@@ -260,12 +216,6 @@ namespace ExcelExtractor2
                             var v = stringTable.SharedStringTable
                                 .ElementAt(int.Parse(value.ToString()));
 
-
-
-
-                            bool isStrike = false;
-
-
                             //detect whther the text was part of striked from string item
                             foreach (Strike strike in stringTable.SharedStringTable
                                .ElementAt(int.Parse(value.ToString())).Descendants<Strike>())
@@ -289,7 +239,7 @@ namespace ExcelExtractor2
                             }
 
 
-                            value = isStrike ? "`~" + v.InnerText + "`~" : v.InnerText;
+                            value = v.InnerText;
 
 
 
