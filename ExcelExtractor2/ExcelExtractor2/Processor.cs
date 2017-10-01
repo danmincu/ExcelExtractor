@@ -94,6 +94,7 @@ namespace ExcelExtractor2
 
                     int currentRow = 1, currentColumn = 1;
                     xlsxDocument.SetColumnWidth(1, 15);
+                    xlsxDocument.SetRowHeight(1, 50);
                     // Retrieve a reference to the workbook part.
                     WorkbookPart wbPart = document.WorkbookPart;
 
