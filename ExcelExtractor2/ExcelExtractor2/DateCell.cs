@@ -14,7 +14,7 @@ namespace ExcelExtractor2
         {
             this.CellStyle = new SLStyle();
             this.CellStyle.SetWrapText(true);
-            this.CellStyle.Fill.SetPattern(PatternValues.LightTrellis, SLThemeColorIndexValues.Accent1Color, SLThemeColorIndexValues.Light2Color);
+            this.CellStyle.Fill.SetPattern(PatternValues.Solid,System.Drawing.Color.FromArgb(255,236,247,226), SLThemeColorIndexValues.Light2Color);
             this.CellStyle.Border.SetBottomBorder(BorderStyleValues.Medium, SLThemeColorIndexValues.Dark1Color);
             this.CellStyle.Border.SetTopBorder(BorderStyleValues.Medium, SLThemeColorIndexValues.Dark1Color);
             this.CellStyle.Border.SetLeftBorder(BorderStyleValues.Medium, SLThemeColorIndexValues.Dark1Color);

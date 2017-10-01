@@ -11,8 +11,6 @@ using SpreadsheetLight;
 
 namespace ExcelExtractor2
 {
- 
-
     class Processor
     {
         const string separator = "|";
@@ -36,33 +34,29 @@ namespace ExcelExtractor2
                     return 2;
                 }
 
-                // Example of arguments "c:\\temp\\source.xlsx","T1 Jets only",2,1,17,1,1,4,2017-03-01,30,"c:\\temp\\text.txt";
-                
                 //"c:\TACS\JETS VS PILOTS SKED 10-33-39.xlsx",T1%20Jets%20only;2;1;17;1;1;4|T2%20Jets%20only;2;1;5;1;1;2,2017-10-01,30,"30 DAYS JETS VS PILOTS SCHEDULE.xlsx"
                 
-                // args[0] = "\"c:\\temp\\JETS VS PILOTS SKED 06 April 2017 New.xlsx\",\"T1 Jets only\",2,1,17,1,1,4,2017-03-01,30,\"c:\\temp\\text.txt\""; 
-
                 var arguments = args[0].Split(',').Select(s => s.Trim('\"')).ToArray();
 
                 var fileSource = arguments[0];
 
-                var sheetInstructions = arguments[1].Split('|');
+                var sheetInstructionsArgs = arguments[1].Split('|');
 
-                foreach (var sheetInstruction in sheetInstructions)
+                var minimDate = DateTime.Parse(arguments[2]);
+                var maximDate = DateTime.Parse(arguments[2]) + TimeSpan.FromDays(int.Parse(arguments[3]));
+                var destinationFile = path + Path.GetFileName(arguments[4]);
+
+                var sheetInstructionEnum = sheetInstructionsArgs.Select(si =>
                 {
-                    var sheetArgs = sheetInstruction.Split(';');
-                    var sheetName = sheetArgs[0].Replace("%20"," ");
+                    var sheetArgs = si.Split(';');
+                    var sheetName = sheetArgs[0].Replace("%20", " ");
                     var airplaneNames = new Tuple<Position, Position>(new Position { ColumnIndex = int.Parse(sheetArgs[1]), RowIndex = int.Parse(sheetArgs[2]) },
                     new Position { ColumnIndex = int.Parse(sheetArgs[3]), RowIndex = int.Parse(sheetArgs[4]) });
                     var calendarStartPosition = new Position { ColumnIndex = int.Parse(sheetArgs[5]), RowIndex = int.Parse(sheetArgs[6]) };
-                    var minimDate = DateTime.Parse(arguments[2]);
-                    var maximDate = DateTime.Parse(arguments[2]) + TimeSpan.FromDays(int.Parse(arguments[3]));
-                    var destinationFile = path + Path.GetFileName(arguments[4]);
-
-                    ExtractAirplaneCalendar(sheetName, fileSource, destinationFile, airplaneNames, calendarStartPosition, minimDate, maximDate);
-
-                    break;
-                }
+                    return new SheetInstructions(sheetName, airplaneNames, calendarStartPosition, minimDate, maximDate);
+                });                
+                
+                ExtractAirplaneCalendar(fileSource, destinationFile, sheetInstructionEnum);
 
                 return 0;
             }
@@ -80,113 +74,127 @@ namespace ExcelExtractor2
             return sheets.FirstOrDefault(s => s.Id.HasValue && s.Id.Value == relationshipId);
         }
 
-        static void ExtractAirplaneCalendar(string sheetName, string filePath, string saveFilePath, Tuple<Position, Position> airplaneNames, Position calendarStartPosition, DateTime minimDate, DateTime maximDate)
+        static void ExtractAirplaneCalendar(string filePath, string saveFilePath, IEnumerable<SheetInstructions> sheetInstructions)
         {
-
             using (SpreadsheetDocument document = SpreadsheetDocument.Open(filePath, false))
-            {
-                int currentRow = 1, currentColumn = 1;
+            {  
                 SLDocument xlsxDocument = new SLDocument();
-                xlsxDocument.SetColumnWidth(1, 15);
-                // Retrieve a reference to the workbook part.
-                WorkbookPart wbPart = document.WorkbookPart;
 
-                Sheet theSheet = wbPart.Workbook.Descendants<Sheet>().FirstOrDefault(s => s.Name.ToString().Equals(sheetName, StringComparison.OrdinalIgnoreCase));
-
-                if (theSheet == null)
-                    return;
-
-                Dictionary<string, string> lstComments = new Dictionary<string, string>();
-                foreach (WorksheetPart sheet in wbPart.WorksheetParts)
+                var workSheetNumber = 0;                
+                foreach(var sheetInstruction in sheetInstructions)
                 {
-                    var s = GetSheetFromWorkSheet(wbPart, sheet);
-
-                    if (s.Name == sheetName)
+                    if (workSheetNumber++ == 0)
                     {
-                        foreach (WorksheetCommentsPart commentsPart in sheet.GetPartsOfType<WorksheetCommentsPart>())
+                        xlsxDocument.RenameWorksheet(SLDocument.DefaultFirstSheetName, sheetInstruction.SheetName);
+                    }
+                    else
+                    {
+                        xlsxDocument.AddWorksheet(sheetInstruction.SheetName);
+                    }
+
+                    int currentRow = 1, currentColumn = 1;
+                    xlsxDocument.SetColumnWidth(1, 15);
+                    // Retrieve a reference to the workbook part.
+                    WorkbookPart wbPart = document.WorkbookPart;
+
+                    Sheet theSheet = wbPart.Workbook.Descendants<Sheet>().FirstOrDefault(s => s.Name.ToString().Equals(sheetInstruction.SheetName, StringComparison.OrdinalIgnoreCase));
+
+                    if (theSheet == null)
+                        return;
+
+                    Dictionary<string, string> lstComments = new Dictionary<string, string>();
+                    foreach (WorksheetPart sheet in wbPart.WorksheetParts)
+                    {
+                        var s = GetSheetFromWorkSheet(wbPart, sheet);
+
+                        if (s.Name == sheetInstruction.SheetName)
                         {
-                            foreach (Comment comment in commentsPart.Comments.CommentList)
+                            foreach (WorksheetCommentsPart commentsPart in sheet.GetPartsOfType<WorksheetCommentsPart>())
                             {
-                                lstComments.Add(comment.Reference, comment.InnerText);
+                                foreach (Comment comment in commentsPart.Comments.CommentList)
+                                {
+                                    lstComments.Add(comment.Reference, comment.InnerText);
+                                }
                             }
                         }
                     }
-                }
 
-                WorksheetPart wsPart = (WorksheetPart)(wbPart.GetPartById(theSheet.Id));
+                    WorksheetPart wsPart = (WorksheetPart)(wbPart.GetPartById(theSheet.Id));
 
-                var theRows = wsPart.Worksheet.Descendants<Row>();
+                    var theRows = wsPart.Worksheet.Descendants<Row>();
 
-                RegexOptions options = RegexOptions.None;
-                Regex regex = new Regex("[ ]{2,}", options);
+                    RegexOptions options = RegexOptions.None;
+                    Regex regex = new Regex("[ ]{2,}", options);
 
 
-                var titleRow = theRows.Skip(airplaneNames.Item1.RowIndex - 1).FirstOrDefault();
-                var titleNames = titleRow.Descendants<Cell>().Skip(airplaneNames.Item1.ColumnIndex - 1).Take(airplaneNames.Item2.ColumnIndex - 1)
-                    .Select(t => (regex.Replace(GetCellValue(t, wbPart, out var b).ToString().Trim().Replace("\n", " "), " ")).Replace("|", ""));
-                var titleCellValues = titleRow.Descendants<Cell>().Skip(airplaneNames.Item1.ColumnIndex - 1).Take(airplaneNames.Item2.ColumnIndex - 1).
-                    Select(t => Regex.Replace(t.CellReference, @"[^A-Z]+", String.Empty)).ToList();
+                    var titleRow = theRows.Skip(sheetInstruction.AirplaneNames.Item1.RowIndex - 1).FirstOrDefault();
+                    var titleNames = titleRow.Descendants<Cell>().Skip(sheetInstruction.AirplaneNames.Item1.ColumnIndex - 1).Take(sheetInstruction.AirplaneNames.Item2.ColumnIndex - 1)
+                        .Select(t => (regex.Replace(GetCellValue(t, wbPart, out var b).ToString().Trim().Replace("\n", " "), " ")).Replace("|", ""));
+                    var titleCellValues = titleRow.Descendants<Cell>().Skip(sheetInstruction.AirplaneNames.Item1.ColumnIndex - 1).Take(sheetInstruction.AirplaneNames.Item2.ColumnIndex - 1).
+                        Select(t => Regex.Replace(t.CellReference, @"[^A-Z]+", String.Empty)).ToList();
 
-                //clean the airplane names
-                titleNames = titleNames.Select(t => Regex.Replace(t, @"[^0-9a-zA-Z\s\-]+", String.Empty)).Select(t => regex.Replace(t, " "));
+                    //clean the airplane names
+                    titleNames = titleNames.Select(t => Regex.Replace(t, @"[^0-9a-zA-Z\s\-]+", String.Empty)).Select(t => regex.Replace(t, " "));
 
-                titleNames = (new string[] { "Date" }).Union(titleNames);
-                titleNames.ToList().ForEach(title =>
-                {
-                    (new TitleCell() { Text = title }).SetOutputCell(currentRow, currentColumn++, xlsxDocument);
-                });
-                currentRow++;
-                currentColumn = 1;
-
-                var meaninfulRows = theRows.Skip(calendarStartPosition.RowIndex - 1)
-                    .Where(r =>
+                    titleNames = (new string[] { "Date" }).Union(titleNames);
+                    titleNames.ToList().ForEach(title =>
                     {
-                        var dtobj = GetCellValue(r.Descendants<Cell>().ElementAt(calendarStartPosition.ColumnIndex - 1), wbPart, out var b);
-                        if (!(dtobj is DateTime))
-                            return false;
-                        var dt = (DateTime)dtobj;
-                        return dt >= minimDate && dt < maximDate;
-                    }).ToList();
-                string line = null;
-                foreach (var row in meaninfulRows)
-                {
-
-                    var cells = row.Descendants<Cell>().ToList();
-                    var values = row.Descendants<Cell>()
-                        .Skip(airplaneNames.Item1.ColumnIndex - 1)
-                        .Take(airplaneNames.Item2.ColumnIndex - 1)
-                        .Select(t =>
-                        {
-                            var ocell = new OutputCell()
-                            {
-                                Text = GetCellValue(t, wbPart, out var isStrikeout).ToString().Trim().Replace("\n", " "),
-                                IsStrikeout = isStrikeout
-                            };
-                            if (lstComments.ContainsKey(t.CellReference.ToString()))
-                            {
-                                ocell.TextComment = lstComments[t.CellReference].Replace("\n", " ");
-                            }
-                            return System.Tuple.Create(Regex.Replace(t.CellReference, @"[^A-Z]+", String.Empty), ocell/*v*/);
-                        }).ToDictionary(t => t.Item1, t => t.Item2);
-
-                    List<OutputCell> vals = new List<OutputCell>();
-                    foreach (var letter in titleCellValues)
-                    {
-                        if (values.ContainsKey(letter))
-                            vals.Add(values[letter]);
-                        else
-                            vals.Add(new OutputCell() { Text = null });
-                    }
-
-                    line = string.Join(separator, vals);
-                    var DateTime = (DateTime)GetCellValue(cells.ElementAt(calendarStartPosition.ColumnIndex - 1), wbPart, out var b);
-                    var cellValues = (new OutputCell[] { new DateCell() { Text = DateTime.ToString("yyyy-MM-dd") } }).Union(vals);
-
-                    cellValues.ToList().ForEach(a => a.SetOutputCell(currentRow, currentColumn++, xlsxDocument));              
+                        xlsxDocument.SetColumnWidth(currentColumn, 20);
+                        (new TitleCell() { Text = title }).SetOutputCell(currentRow, currentColumn++, xlsxDocument);
+                    });
                     currentRow++;
                     currentColumn = 1;
-                }
 
+                    var meaninfulRows = theRows.Skip(sheetInstruction.CalendarStartPosition.RowIndex - 1)
+                        .Where(r =>
+                        {
+                            var dtobj = GetCellValue(r.Descendants<Cell>().ElementAt(sheetInstruction.CalendarStartPosition.ColumnIndex - 1), wbPart, out var b);
+                            if (!(dtobj is DateTime))
+                                return false;
+                            var dt = (DateTime)dtobj;
+                            return dt >= sheetInstruction.MinimDate && dt < sheetInstruction.MaximDate;
+                        }).ToList();
+                    string line = null;
+                    foreach (var row in meaninfulRows)
+                    {
+
+                        var cells = row.Descendants<Cell>().ToList();
+                        var values = row.Descendants<Cell>()
+                            .Skip(sheetInstruction.AirplaneNames.Item1.ColumnIndex - 1)
+                            .Take(sheetInstruction.AirplaneNames.Item2.ColumnIndex - 1)
+                            .Select(t =>
+                            {
+                                var ocell = new OutputCell()
+                                {
+                                    Text = GetCellValue(t, wbPart, out var isStrikeout).ToString().Trim().Replace("\n", " "),
+                                    IsStrikeout = isStrikeout
+                                };
+                                if (lstComments.ContainsKey(t.CellReference.ToString()))
+                                {
+                                    ocell.TextComment = lstComments[t.CellReference].Replace("\n", " ");
+                                }
+                                return System.Tuple.Create(Regex.Replace(t.CellReference, @"[^A-Z]+", String.Empty), ocell/*v*/);
+                            }).ToDictionary(t => t.Item1, t => t.Item2);
+
+                        List<OutputCell> vals = new List<OutputCell>();
+                        foreach (var letter in titleCellValues)
+                        {
+                            if (values.ContainsKey(letter))
+                                vals.Add(values[letter]);
+                            else
+                                vals.Add(new OutputCell() { Text = null });
+                        }
+
+                        line = string.Join(separator, vals);
+                        var DateTime = (DateTime)GetCellValue(cells.ElementAt(sheetInstruction.CalendarStartPosition.ColumnIndex - 1), wbPart, out var b);
+                        var cellValues = (new OutputCell[] { new DateCell() { Text = DateTime.ToString("yyyy-MM-dd") } }).Union(vals);
+
+                        cellValues.ToList().ForEach(a => a.SetOutputCell(currentRow, currentColumn++, xlsxDocument));
+                        currentRow++;
+                        currentColumn = 1;
+                    }
+                }
+                xlsxDocument.SelectWorksheet(sheetInstructions.First().SheetName);
                 xlsxDocument.SaveAs(saveFilePath);
             }
         }

@@ -36,7 +36,7 @@ namespace ExcelExtractor2
             {
                 this.CellStyle = new SLStyle();
                 ForegroundColor foregroundColor2 = new ForegroundColor() { Rgb = "FF0070C0" };
-                this.CellStyle.Fill.SetPattern(PatternValues.LightTrellis, System.Drawing.Color.LightGray, SLThemeColorIndexValues.Light2Color);
+                this.CellStyle.Fill.SetPattern(PatternValues.Solid, System.Drawing.Color.FromArgb(255, 241, 253, 255), SLThemeColorIndexValues.Light2Color);                
                 this.CellStyle.Border.SetBottomBorder(BorderStyleValues.Hair, SLThemeColorIndexValues.Dark1Color);
                 this.CellStyle.Border.SetTopBorder(BorderStyleValues.Hair, SLThemeColorIndexValues.Dark1Color);
                 this.CellStyle.Border.SetLeftBorder(BorderStyleValues.Hair, SLThemeColorIndexValues.Dark1Color);
