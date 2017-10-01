@@ -37,25 +37,39 @@ namespace ExcelExtractor2
                 }
 
                 // Example of arguments "c:\\temp\\source.xlsx","T1 Jets only",2,1,17,1,1,4,2017-03-01,30,"c:\\temp\\text.txt";
+                
+                //"c:\TACS\JETS VS PILOTS SKED 10-33-39.xlsx",T1%20Jets%20only;2;1;17;1;1;4|T2%20Jets%20only;2;1;5;1;1;2,2017-10-01,30,"30 DAYS JETS VS PILOTS SCHEDULE.xlsx"
+                
                 // args[0] = "\"c:\\temp\\JETS VS PILOTS SKED 06 April 2017 New.xlsx\",\"T1 Jets only\",2,1,17,1,1,4,2017-03-01,30,\"c:\\temp\\text.txt\""; 
 
                 var arguments = args[0].Split(',').Select(s => s.Trim('\"')).ToArray();
-                var fileSource = arguments[0]; //ConfigurationManager.AppSettings["excel file"];
-                var sheetName = arguments[1];
-                var airplaneNames = new Tuple<Position, Position>(new Position { ColumnIndex = int.Parse(arguments[2]), RowIndex = int.Parse(arguments[3]) },
-                    new Position { ColumnIndex = int.Parse(arguments[4]), RowIndex = int.Parse(arguments[5]) });
-                var calendarStartPosition = new Position { ColumnIndex = int.Parse(arguments[6]), RowIndex = int.Parse(arguments[7]) };
-                var minimDate = DateTime.Parse(arguments[8]);
-                var maximDate = DateTime.Parse(arguments[8]) + TimeSpan.FromDays(int.Parse(arguments[9]));
-                var destinationFile = path + Path.GetFileName(arguments[10]);
 
-                ExtractAirplaneCalendar(sheetName, fileSource, destinationFile, airplaneNames, calendarStartPosition, minimDate, maximDate);
+                var fileSource = arguments[0];
+
+                var sheetInstructions = arguments[1].Split('|');
+
+                foreach (var sheetInstruction in sheetInstructions)
+                {
+                    var sheetArgs = sheetInstruction.Split(';');
+                    var sheetName = sheetArgs[0].Replace("%20"," ");
+                    var airplaneNames = new Tuple<Position, Position>(new Position { ColumnIndex = int.Parse(sheetArgs[1]), RowIndex = int.Parse(sheetArgs[2]) },
+                    new Position { ColumnIndex = int.Parse(sheetArgs[3]), RowIndex = int.Parse(sheetArgs[4]) });
+                    var calendarStartPosition = new Position { ColumnIndex = int.Parse(sheetArgs[5]), RowIndex = int.Parse(sheetArgs[6]) };
+                    var minimDate = DateTime.Parse(arguments[2]);
+                    var maximDate = DateTime.Parse(arguments[2]) + TimeSpan.FromDays(int.Parse(arguments[3]));
+                    var destinationFile = path + Path.GetFileName(arguments[4]);
+
+                    ExtractAirplaneCalendar(sheetName, fileSource, destinationFile, airplaneNames, calendarStartPosition, minimDate, maximDate);
+
+                    break;
+                }
+
                 return 0;
             }
             catch (Exception ex)
             {
                 System.IO.File.WriteAllText(path + "Exception.txt", ex.ToString());
-                return 1;
+                throw ex;
             }
         }
 
