@@ -261,10 +261,7 @@ namespace ExcelExtractor2
                                 }
                             }
 
-
                             value = v.InnerText;
-
-
 
                         }
                         break;
@@ -284,8 +281,32 @@ namespace ExcelExtractor2
             }
             else //null cell data type
             {
+
+                var cellFormats = wbPart.WorkbookStylesPart.Stylesheet.CellFormats;
+                var numberingFormats = wbPart.WorkbookStylesPart.Stylesheet.NumberingFormats;
+
+
+                bool isDate = false;
+                var styleIndex = (int)theCell.StyleIndex.Value;
+                var cellFormatt = (CellFormat)cellFormats.ElementAt(styleIndex);
+
+                if (cellFormatt.NumberFormatId != null)
+                {
+                    var numberFormatId = cellFormatt.NumberFormatId.Value;
+                    var numberingFormat = numberingFormats.Cast<NumberingFormat>()
+                        .SingleOrDefault(f => f.NumberFormatId.Value == numberFormatId);
+
+                    // Here's yer string! Example: $#,##0.00_);[Red]($#,##0.00)
+                    if (numberingFormat != null && numberingFormat.FormatCode.Value.Contains("mmm"))
+                    {
+                        string formatString = numberingFormat.FormatCode.Value;
+                        isDate = true;
+                    }
+                }
+
+
                 int dateInteger;
-                if (!string.IsNullOrEmpty(value.ToString()) && int.TryParse(value.ToString(), out dateInteger) && attrib.Count >= 1 && dateTypes.Contains(attrib[1].Value)) //attrib.Count >= 1 && (attrib[1].Value == "611" || attrib[1].Value == "108"))                            {
+                if (!string.IsNullOrEmpty(value.ToString()) && int.TryParse(value.ToString(), out dateInteger) && attrib.Count >= 1 && (dateTypes.Contains(attrib[1].Value) || isDate)) //attrib.Count >= 1 && (attrib[1].Value == "611" || attrib[1].Value == "108"))                            {
                 {
                     value = (new DateTime(1899, 12, 30).Add(new TimeSpan(dateInteger, 0, 0, 0)));//.ToString("yyyy-MM-dd");
                 }
