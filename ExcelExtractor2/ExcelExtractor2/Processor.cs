@@ -1,13 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.IO;
-using DocumentFormat.OpenXml.Packaging;
+﻿using DocumentFormat.OpenXml.Packaging;
 using DocumentFormat.OpenXml.Spreadsheet;
-using System.Text.RegularExpressions;
-using System.Configuration;
 using SpreadsheetLight;
+using System;
+using System.Collections.Generic;
+using System.Configuration;
+using System.Data;
+using System.IO;
+using System.Linq;
+using System.Text.RegularExpressions;
 
 namespace ExcelExtractor2
 {
@@ -35,7 +35,7 @@ namespace ExcelExtractor2
                 }
 
                 //"c:\TACS\JETS VS PILOTS SKED 10-33-39.xlsx",T1%20Jets%20only;2;1;17;1;1;4|T2%20Jets%20only;2;1;5;1;1;2,2017-10-01,30,"30 DAYS JETS VS PILOTS SCHEDULE.xlsx"
-                
+
                 var arguments = args[0].Split(',').Select(s => s.Trim('\"')).ToArray();
 
                 var fileSource = arguments[0];
@@ -54,8 +54,8 @@ namespace ExcelExtractor2
                     new Position { ColumnIndex = int.Parse(sheetArgs[3]), RowIndex = int.Parse(sheetArgs[4]) });
                     var calendarStartPosition = new Position { ColumnIndex = int.Parse(sheetArgs[5]), RowIndex = int.Parse(sheetArgs[6]) };
                     return new SheetInstructions(sheetName, airplaneNames, calendarStartPosition, minimDate, maximDate);
-                });                
-                
+                });
+
                 ExtractAirplaneCalendar(fileSource, destinationFile, sheetInstructionEnum);
 
                 return 0;
@@ -77,11 +77,11 @@ namespace ExcelExtractor2
         static void ExtractAirplaneCalendar(string filePath, string saveFilePath, IEnumerable<SheetInstructions> sheetInstructions)
         {
             using (SpreadsheetDocument document = SpreadsheetDocument.Open(filePath, false))
-            {  
+            {
                 SLDocument xlsxDocument = new SLDocument();
 
-                var workSheetNumber = 0;                
-                foreach(var sheetInstruction in sheetInstructions)
+                var workSheetNumber = 0;
+                foreach (var sheetInstruction in sheetInstructions)
                 {
                     if (workSheetNumber++ == 0)
                     {
@@ -149,12 +149,13 @@ namespace ExcelExtractor2
                     var meaninfulRows = theRows.Skip(sheetInstruction.CalendarStartPosition.RowIndex - 1)
                         .Where(r =>
                         {
-                            var dtobj = GetCellValue(r.Descendants<Cell>().ElementAt(sheetInstruction.CalendarStartPosition.ColumnIndex - 1), wbPart, out var b);
-                            if (!(dtobj is DateTime))
+                            if (!TryGetDateFromCell(r.Descendants<Cell>().ElementAt(sheetInstruction.CalendarStartPosition.ColumnIndex - 1), wbPart, out var dateTime))
+                            {
                                 return false;
-                            var dt = (DateTime)dtobj;
-                            return dt >= sheetInstruction.MinimDate && dt < sheetInstruction.MaximDate;
+                            }
+                            return dateTime >= sheetInstruction.MinimDate && dateTime < sheetInstruction.MaximDate;
                         }).ToList();
+
                     string line = null;
                     foreach (var row in meaninfulRows)
                     {
@@ -177,7 +178,7 @@ namespace ExcelExtractor2
                                 return System.Tuple.Create(Regex.Replace(t.CellReference, @"[^A-Z]+", String.Empty), ocell/*v*/);
                             }).ToDictionary(t => t.Item1, t => t.Item2);
 
-                        List<OutputCell> vals = new List<OutputCell>();
+                        var vals = new List<OutputCell>();
                         foreach (var letter in titleCellValues)
                         {
                             if (values.ContainsKey(letter))
@@ -186,9 +187,8 @@ namespace ExcelExtractor2
                                 vals.Add(new OutputCell() { Text = null });
                         }
 
-                        line = string.Join(separator, vals);
-                        var DateTime = (DateTime)GetCellValue(cells.ElementAt(sheetInstruction.CalendarStartPosition.ColumnIndex - 1), wbPart, out var b);
-                        var cellValues = (new OutputCell[] { new DateCell() { Text = DateTime.ToString("yyyy-MM-dd") } }).Union(vals);
+                        TryGetDateFromCell(cells.ElementAt(sheetInstruction.CalendarStartPosition.ColumnIndex - 1), wbPart, out var dateTime);
+                        var cellValues = (new OutputCell[] { new DateCell() { Text = dateTime.ToString("yyyy-MM-dd") } }).Union(vals);
 
                         cellValues.ToList().ForEach(a => a.SetOutputCell(currentRow, currentColumn++, xlsxDocument));
                         currentRow++;
@@ -198,6 +198,31 @@ namespace ExcelExtractor2
                 xlsxDocument.SelectWorksheet(sheetInstructions.First().SheetName);
                 xlsxDocument.SaveAs(saveFilePath);
             }
+        }
+
+        static bool TryGetDateFromCell(Cell cell, WorkbookPart wbPart, out DateTime dateTime)
+        {
+            dateTime = DateTime.MinValue;
+
+            var dtobj = GetCellValue(cell, wbPart, out var b);
+            if (!(dtobj is DateTime))
+            {
+                if (!Int32.TryParse(dtobj.ToString(), out var potentialDateTimeValue))
+                    return false;
+
+                // I determined these values using the Excel DateValue function - whatever that is; +1 mean plus one day therefore the next code
+                const int firstJanuary1990 = 32874;
+                const int firstJanuary2100 = 73051;
+
+                if (potentialDateTimeValue > firstJanuary2100 || potentialDateTimeValue < firstJanuary1990)
+                    return false;
+
+                dateTime = (new DateTime(1990, 1, 1)).AddDays(potentialDateTimeValue - firstJanuary1990);
+                return true;
+            }
+
+            dateTime = (DateTime)dtobj;
+            return true;
         }
 
         static object GetCellValue(Cell theCell, WorkbookPart wbPart, out bool isStrike)
