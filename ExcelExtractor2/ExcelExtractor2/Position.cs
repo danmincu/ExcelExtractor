@@ -10,6 +10,10 @@ namespace ExcelExtractor2
     {
         public int RowIndex { set; get; }
         public int ColumnIndex { set; get; }
+        public override string ToString()
+        {
+            return $"({this.ColumnIndex},{this.RowIndex})";
+        }
     }
 
   

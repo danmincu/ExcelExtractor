@@ -11,9 +11,9 @@ using System.Text.RegularExpressions;
 
 namespace ExcelExtractor2
 {
-    class Processor
+    static class Processor
     {
-        const string separator = "|";
+        const string Separator = "|";
         private static string[] dateTypes;
         public static int Run(string[] args)
         {
@@ -63,22 +63,22 @@ namespace ExcelExtractor2
             catch (Exception ex)
             {
                 System.IO.File.WriteAllText(path + "Exception.txt", ex.ToString());
-                throw ex;
+                throw;
             }
         }
 
-        public static Sheet GetSheetFromWorkSheet(WorkbookPart workbookPart, WorksheetPart worksheetPart)
+        private static Sheet GetSheetFromWorkSheet(WorkbookPart workbookPart, WorksheetPart worksheetPart)
         {
-            string relationshipId = workbookPart.GetIdOfPart(worksheetPart);
-            IEnumerable<Sheet> sheets = workbookPart.Workbook.Sheets.Elements<Sheet>();
+            var relationshipId = workbookPart.GetIdOfPart(worksheetPart);
+            var sheets = workbookPart.Workbook.Sheets.Elements<Sheet>();
             return sheets.FirstOrDefault(s => s.Id.HasValue && s.Id.Value == relationshipId);
         }
 
-        static void ExtractAirplaneCalendar(string filePath, string saveFilePath, IEnumerable<SheetInstructions> sheetInstructions)
+        private static void ExtractAirplaneCalendar(string filePath, string saveFilePath, IEnumerable<SheetInstructions> sheetInstructions)
         {
             using (SpreadsheetDocument document = SpreadsheetDocument.Open(filePath, false))
             {
-                SLDocument xlsxDocument = new SLDocument();
+                var xlsxDocument = new SLDocument();
 
                 var workSheetNumber = 0;
                 foreach (var sheetInstruction in sheetInstructions)
@@ -96,43 +96,54 @@ namespace ExcelExtractor2
                     xlsxDocument.SetColumnWidth(1, 15);
                     xlsxDocument.SetRowHeight(1, 50);
                     // Retrieve a reference to the workbook part.
-                    WorkbookPart wbPart = document.WorkbookPart;
+                    var wbPart = document.WorkbookPart;
 
-                    Sheet theSheet = wbPart.Workbook.Descendants<Sheet>().FirstOrDefault(s => s.Name.ToString().Equals(sheetInstruction.SheetName, StringComparison.OrdinalIgnoreCase));
+                    var theSheet = wbPart.Workbook.Descendants<Sheet>().FirstOrDefault(s => s.Name.ToString().Equals(sheetInstruction.SheetName, StringComparison.OrdinalIgnoreCase));
 
                     if (theSheet == null)
                         return;
 
-                    Dictionary<string, string> lstComments = new Dictionary<string, string>();
-                    foreach (WorksheetPart sheet in wbPart.WorksheetParts)
+                    var lstRawComments = new Dictionary<string, Comment>();
+                    foreach (var sheet in wbPart.WorksheetParts)
                     {
                         var s = GetSheetFromWorkSheet(wbPart, sheet);
 
                         if (s.Name.HasValue && s.Name.Value.Equals(sheetInstruction.SheetName, StringComparison.OrdinalIgnoreCase))
                         {
-                            foreach (WorksheetCommentsPart commentsPart in sheet.GetPartsOfType<WorksheetCommentsPart>())
+                            foreach (var commentsPart in sheet.GetPartsOfType<WorksheetCommentsPart>())
                             {
                                 foreach (Comment comment in commentsPart.Comments.CommentList)
                                 {
-                                    lstComments.Add(comment.Reference, comment.InnerText);
+                                    lstRawComments.Add(comment.Reference, comment);
                                 }
                             }
                         }
                     }
 
-                    WorksheetPart wsPart = (WorksheetPart)(wbPart.GetPartById(theSheet.Id));
+                    var wsPart = (WorksheetPart)(wbPart.GetPartById(theSheet.Id));
 
                     var theRows = wsPart.Worksheet.Descendants<Row>();
 
-                    RegexOptions options = RegexOptions.None;
-                    Regex regex = new Regex("[ ]{2,}", options);
+                    var options = RegexOptions.None;
+                    var regex = new Regex("[ ]{2,}", options);
 
 
                     var titleRow = theRows.Skip(sheetInstruction.AirplaneNames.Item1.RowIndex - 1).FirstOrDefault();
-                    var titleNames = titleRow.Descendants<Cell>().Skip(sheetInstruction.AirplaneNames.Item1.ColumnIndex - 1).Take(sheetInstruction.AirplaneNames.Item2.ColumnIndex - 1)
+
+                    var airplaneNamesColumnIndex = sheetInstruction.AirplaneNames.Item1.ColumnIndex - 1;
+                    var airplaneCount = sheetInstruction.AirplaneNames.Item2.ColumnIndex -
+                                        sheetInstruction.AirplaneNames.Item1.ColumnIndex + 1;
+
+                    var titleNames = titleRow.Descendants<Cell>()
+                        .Skip(airplaneNamesColumnIndex)
+                        .Take(airplaneCount)
                         .Select(t => (regex.Replace(GetCellValue(t, wbPart, out var b).ToString().Trim().Replace("\n", " "), " ")).Replace("|", ""));
-                    var titleCellValues = titleRow.Descendants<Cell>().Skip(sheetInstruction.AirplaneNames.Item1.ColumnIndex - 1).Take(sheetInstruction.AirplaneNames.Item2.ColumnIndex - 1).
-                        Select(t => Regex.Replace(t.CellReference, @"[^A-Z]+", String.Empty)).ToList();
+
+                    var titleCellValues = titleRow
+                        .Descendants<Cell>()
+                        .Skip(airplaneNamesColumnIndex)
+                        .Take(airplaneCount)
+                        .Select(t => Regex.Replace(t.CellReference, @"[^A-Z]+", String.Empty)).ToList();
 
                     //clean the airplane names
                     titleNames = titleNames.Select(t => Regex.Replace(t, @"[^0-9a-zA-Z\s\-]+", String.Empty)).Select(t => regex.Replace(t, " "));
@@ -162,8 +173,10 @@ namespace ExcelExtractor2
 
                         var cells = row.Descendants<Cell>().ToList();
                         var values = row.Descendants<Cell>()
-                            .Skip(sheetInstruction.AirplaneNames.Item1.ColumnIndex - 1)
-                            .Take(sheetInstruction.AirplaneNames.Item2.ColumnIndex - 1)
+
+                            // this list in not linear - it skips columns with no values therefore it needs to be used by reference
+                            //.Skip(airplaneNamesColumnIndex)
+                            //.Take(airplaneCount)
                             .Select(t =>
                             {
                                 var ocell = new OutputCell()
@@ -171,9 +184,10 @@ namespace ExcelExtractor2
                                     Text = GetCellValue(t, wbPart, out var isStrikeout).ToString().Trim().Replace("\n", " "),
                                     IsStrikeout = isStrikeout
                                 };
-                                if (lstComments.ContainsKey(t.CellReference.ToString()))
+                                if (lstRawComments.ContainsKey(t.CellReference.ToString()))
                                 {
-                                    ocell.TextComment = lstComments[t.CellReference].Replace("\n", " ");
+                                    // ocell.TextComment = lstComments[t.CellReference];
+                                    ocell.Comment = lstRawComments[t.CellReference];
                                 }
                                 return System.Tuple.Create(Regex.Replace(t.CellReference, @"[^A-Z]+", String.Empty), ocell/*v*/);
                             }).ToDictionary(t => t.Item1, t => t.Item2);
@@ -200,7 +214,7 @@ namespace ExcelExtractor2
             }
         }
 
-        static bool TryGetDateFromCell(Cell cell, WorkbookPart wbPart, out DateTime dateTime)
+        private static bool TryGetDateFromCell(Cell cell, WorkbookPart wbPart, out DateTime dateTime)
         {
             dateTime = DateTime.MinValue;
 
@@ -225,7 +239,7 @@ namespace ExcelExtractor2
             return true;
         }
 
-        static object GetCellValue(Cell theCell, WorkbookPart wbPart, out bool isStrike)
+        private static object GetCellValue(Cell theCell, WorkbookPart wbPart, out bool isStrike)
         {
             isStrike = false;
             var attrib = theCell.GetAttributes();
