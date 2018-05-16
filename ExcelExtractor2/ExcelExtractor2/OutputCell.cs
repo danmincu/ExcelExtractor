@@ -19,23 +19,8 @@ namespace ExcelExtractor2
         {
             if (this.Comment != null)
             {
-                //// linear gradients
-                //var comm = document.CreateComment();
-                //// 40% transparency on the first gradient point
-                ////comm.GradientFromTransparency = 90;
-                //// 80% transparency on the last gradient point
-                ////comm.GradientToTransparency = 100;
-                //// 45 degrees, so gradient is from top-left to bottom-right
-                //comm.Fill.SetLinearGradient(SpreadsheetLight.Drawing.SLGradientPresetValues.Ocean, 45);
-                //comm.SetText(this.TextComment.Replace("\n", " "));
-                //document.InsertComment(row, column, comm);
-
-
-                SLFont font = document.CreateFont();
-                font.SetFont("Tahoma", 9);
-                font.Bold = true;
-                SLRstType rst = document.CreateRstType();
-
+                // linear gradients
+                var rst = document.CreateRstType();
                 var lines = this.Comment.InnerText.Split('\n');
 
                 foreach (var line in lines.Where(l => !string.IsNullOrEmpty(l)))
@@ -43,14 +28,13 @@ namespace ExcelExtractor2
                     rst.AppendText($"{line}\n");
                 }
 
-                //rst.AppendText("Karen:\n", font);
-                //rst.AppendText("Dan:\n", font);
-                //rst.AppendText("1:\n", font);
-                //rst.AppendText("2:\n", font);
-                //rst.AppendText("Karen:\n", font);
-                //rst.AppendText("We have a troll! That is so immature...");
                 var comm = document.CreateComment();
                 comm.SetText(rst);
+                // 40% transparency on the first gradient point
+                //comm.GradientFromTransparency = 90;
+                // 80% transparency on the last gradient point
+                //comm.GradientToTransparency = 100;
+                // 45 degrees, so gradient is from top-left to bottom-right
                 comm.Fill.SetLinearGradient(SpreadsheetLight.Drawing.SLGradientPresetValues.Ocean, 45);
                 comm.AutoSize = true;
 
@@ -60,7 +44,7 @@ namespace ExcelExtractor2
             if (this.CellStyle == null)
             {
                 this.CellStyle = new SLStyle();
-                ForegroundColor foregroundColor2 = new ForegroundColor() { Rgb = "FF0070C0" };
+                var foregroundColor2 = new ForegroundColor() { Rgb = "FF0070C0" };
                 this.CellStyle.Fill.SetPattern(PatternValues.Solid, System.Drawing.Color.FromArgb(255, 241, 253, 255), SLThemeColorIndexValues.Light2Color);                
                 this.CellStyle.Border.SetBottomBorder(BorderStyleValues.Hair, SLThemeColorIndexValues.Dark1Color);
                 this.CellStyle.Border.SetTopBorder(BorderStyleValues.Hair, SLThemeColorIndexValues.Dark1Color);
