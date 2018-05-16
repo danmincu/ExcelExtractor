@@ -108,7 +108,7 @@ namespace ExcelExtractor2
                     {
                         var s = GetSheetFromWorkSheet(wbPart, sheet);
 
-                        if (s.Name == sheetInstruction.SheetName)
+                        if (s.Name.HasValue && s.Name.Value.Equals(sheetInstruction.SheetName, StringComparison.OrdinalIgnoreCase))
                         {
                             foreach (WorksheetCommentsPart commentsPart in sheet.GetPartsOfType<WorksheetCommentsPart>())
                             {
